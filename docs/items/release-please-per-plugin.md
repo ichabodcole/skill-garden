@@ -30,3 +30,6 @@ for its scaffold, and its config is a reference.
 - [ ] A commit touching one plugin proposes a release of that plugin only, and a
       docs-only commit proposes none.
 - [ ] `AGENTS.md` says how versions are bumped now.
+
+Best done with [the release-please recipe](./release-please-recipe.md), as its
+first real use.
