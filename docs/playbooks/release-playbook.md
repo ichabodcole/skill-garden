@@ -5,7 +5,7 @@ description:
   Releasing plugins — landing develop on main, checking and merging
   release-please's PR, and syncing develop after.
 tags: [plugins, release]
-status: draft
+status: stable
 generated: { by: claude-opus-5-5, at: 2026-09-29 }
 ---
 

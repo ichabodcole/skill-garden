@@ -34,7 +34,9 @@ rules:
   commit that touches that plugin only. An empty commit touches every plugin, so
   its `Release-As:` sets them all to that version.
 - A new plugin: add it to `release-please-config.json` and its version to
-  `.release-please-manifest.json` in the commit that adds it.
+  `.release-please-manifest.json` in the commit that adds it. Seed it at `0.0.0`
+  there and in `plugin.json`, and give that commit a `Release-As: 0.1.0` footer;
+  without it the first release is 1.0.0.
 - A skill's paths are relative to its plugin. Don't reach into another plugin's
   installed folder from a skill: each plugin is installed on its own. A skill
   that works in a clone of this repository (as `create-recipe` does) may name

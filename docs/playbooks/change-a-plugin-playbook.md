@@ -5,7 +5,7 @@ description:
   Changing a plugin — adding, changing, removing or renaming a skill, or adding
   a plugin — with the commit type that releases it correctly.
 tags: [plugins, release, skills]
-status: draft
+status: stable
 generated: { by: claude-opus-5-5, at: 2026-09-29 }
 ---
 
@@ -27,12 +27,13 @@ type the commit; step 7 is where you commit.
 
 1. **If you are adding or changing a skill**, edit
    `plugins/<plugin>/skills/<skill>/SKILL.md`:
-   - Its frontmatter `name` is the skill's folder name.
-   - Its `description` names the phrases that should trigger it and what it does
-     not do, and which sibling skill does that instead. Match the existing
-     skills, for example `plugins/hivemind/skills/hivemind-consult/SKILL.md`:
-     "Triggers on …", then "Does NOT … (use …)". Keep triggers narrow; a skill
-     should fire when asked, not when guessed.
+   - If you write a new skill or change its frontmatter, keep `name` equal to
+     the skill's folder name, and make `description` name the phrases that
+     should trigger it and what it does not do, and which sibling skill does
+     that instead. Match the existing skills, for example
+     `plugins/hivemind/skills/hivemind-consult/SKILL.md`: "Triggers on …", then
+     "Does NOT … (use …)". Keep triggers narrow; a skill should fire when asked,
+     not when guessed.
    - Paths in the skill are relative to its plugin. Don't point into another
      plugin's installed folder.
    - If the plugin has a `README.md` that lists its skills, add or update the
@@ -46,17 +47,25 @@ type the commit; step 7 is where you commit.
    invoked it by name loses it on upgrade.
    - To rename,
      `git mv plugins/<plugin>/skills/<old> plugins/<plugin>/skills/<new>`, then
-     change `name` to `<new>` and rework the `description`'s trigger phrases for
-     the new name. To remove, `git rm -r` the skill's folder, and delete any
-     untracked leftover (a `.DS_Store`) so the folder is gone.
+     change `name` to `<new>`, rework the `description`'s trigger phrases for
+     the new name, and rename the skill's H1 and any mention of `<old>` in its
+     body. To remove, `git rm -r` the skill's folder, and delete any untracked
+     leftover (a `.DS_Store`) so the folder is gone.
    - Scrub live references to the old name:
-     `grep -rIwn --exclude=CHANGELOG.md '<old>' plugins/ .claude-plugin/ README.md AGENTS.md docs/PROJECT_MANIFESTO.md`.
-     `-w` matches the name as a whole word, so a short name doesn't match inside
-     longer ones. Rewrite or remove each hit, including the plugin's `README.md`
+
+     ```bash
+     git grep -nIE '(^|[^-[:alnum:]_])<old>($|[^-[:alnum:]_])' -- plugins .claude-plugin README.md AGENTS.md docs ':!docs/items' ':!docs/cycles' ':!**/CHANGELOG.md'
+     ```
+
+     The pattern matches `<old>` only where no letter, digit, `_` or `-` sits
+     next to it, so `optimize` doesn't match inside `optimize-screenshots` or
+     `pre-optimize`. (`grep -w` is not enough: it treats `-` as a word
+     boundary.) Rewrite or remove each hit, including the plugin's `README.md`
      row and `marketplace.json` tags.
+
    - Leave history alone: the plugins' `CHANGELOG.md` files, `docs/items/`
-     (their sessions and write-ups included), and closed cycles in
-     `docs/cycles/` record work that happened. Don't rewrite them.
+     (their sessions and write-ups included) and `docs/cycles/` record work that
+     happened, and the scrub skips them. Don't rewrite them.
    - Fix the dependents in other plugins that the grep found. A skill may name
      another plugin's skill (the `hivemind` skills send the agent to
      `operator-setup`) or its files by path (`create-recipe` in `recipes` copies
@@ -72,27 +81,34 @@ type the commit; step 7 is where you commit.
      `.release-please-manifest.json`.
 
 3. **If you are adding a plugin**, make all of these changes, for one commit:
-   - `plugins/<name>/.claude-plugin/plugin.json` with `name`, `version`,
-     `description`, `author`, `homepage`, `repository` and `license: "MIT"`.
-     Copy the fields from an existing one, such as
+   - `plugins/<name>/.claude-plugin/plugin.json` with `name`,
+     `version: "0.0.0"`, `description`, `author`, `homepage`, `repository` and
+     `license: "MIT"`. Copy the fields from an existing one, such as
      `plugins/hivemind/.claude-plugin/plugin.json`.
    - `plugins/<name>/skills/`, with at least one skill written as in step 1.
-   - An entry in `.claude-plugin/marketplace.json` with `name`, `source`
-     (`./plugins/<name>`), `category` and `tags`, and no version.
+   - An entry at the end of `.claude-plugin/marketplace.json`'s `plugins` list
+     with `name`, `source` (`./plugins/<name>`), `category` and `tags`, and no
+     version. Reuse a `category` already there if one fits: `development`,
+     `documentation`, `communication` or `knowledge`.
    - `"plugins/<name>": { "component": "<name>" }` under `packages` in
-     `release-please-config.json`, and `"plugins/<name>": "<version>"` in
-     `.release-please-manifest.json`, the same version as `plugin.json`. Without
-     them release-please never releases the plugin. The commit that adds the
-     plugin counts toward its first release, so expect the release PR to propose
-     a bump from this version; read the number there (step 4 of the
-     [Releasing Plugins Playbook](./release-playbook.md)).
-   - A row in the root `README.md`'s plugin table, with its Needs column filled
-     ("Nothing extra" if it needs nothing).
+     `release-please-config.json`, and `"plugins/<name>": "0.0.0"` in
+     `.release-please-manifest.json`. Without them release-please never releases
+     the plugin.
+   - The footer `Release-As: 0.1.0` on the commit that adds the plugin, so its
+     first release is 0.1.0. Without it, release-please releases a plugin seeded
+     at 0.0.0 as 1.0.0; seeded at 0.1.0, its first release skips 0.1.0 and is
+     0.2.0.
+   - A row at the end of the root `README.md`'s plugin table, which follows
+     `marketplace.json`'s order, with its Needs column filled ("Nothing extra"
+     if it needs nothing).
+   - A `plugins/<name>/README.md` only if the plugin needs setup the Needs
+     column can't hold (`hivemind`'s is the one there now). It is optional
+     otherwise.
    - `<name>` in `lint.scopes` in `.project-docs.json`, so work items can scope
      to it.
    - The plugin in `docs/PROJECT_MANIFESTO.md`'s "What It Does" list, and in
      "Who Is It For?" if it needs the author's software.
-   - Type the commit `feat(<name>): …`.
+   - Type the commit `feat(<name>): …`, with the `Release-As: 0.1.0` footer.
 
 4. **If a skill depends on the author's software** (Operator, HiveMind, Agent
    Bridge, or project-docs' `pdocs` CLI), say so in the plugin's Needs cell in
@@ -107,15 +123,27 @@ type the commit; step 7 is where you commit.
    skills".
 
 6. **For every change, get a cold read.** Start a fresh agent session with no
-   context from yours, and give it the skill you changed (for a removal, each
-   dependent you changed) plus the files that skill links to directly. Ask it to
-   report, not edit: what is confusing, what could be read more than one way,
-   and what it assumes a first-time reader already knows. Decide yourself what
-   to act on, and make the changes before committing.
+   context from yours. Ask it to report, not edit: what is confusing, what could
+   be read more than one way, and what it assumes a first-time reader already
+   knows.
+   - For a small change (a wording fix, a changed step, a repointed path), point
+     it at the changed lines and the section they sit in, plus anything those
+     lines refer to.
+   - For a new or rewritten skill, give it the whole skill plus the files it
+     links to directly. For a removal, give it each dependent you changed.
+   - Act on findings about your change before committing. For a finding about
+     text that was already there, don't widen the change: file it as a work
+     item:
+     `bun scripts/pdocs/cli.ts new item <slug> --kind task --scope <plugin>`.
+   - Note in the commit body (or the pull request description) that a cold read
+     ran and what you changed because of it, or "no changes" if nothing.
 
 7. **Commit**, with the types the steps above gave, one plugin per commit where
    you can. A commit that touches two plugins counts, with its one type, toward
    both.
+   - Commit each change before starting the next. The pre-commit hook checks the
+     working tree, not the commit, so an unstaged or untracked file from another
+     change can make a broken commit pass, or a good one fail.
    - Never edit `version` in a `plugin.json` by hand, and don't write version
      history into a plugin's `README.md`. release-please bumps the version and
      writes the plugin's `CHANGELOG.md` when it releases.
@@ -131,29 +159,34 @@ type the commit; step 7 is where you commit.
 
 ## Verification
 
-Run these on your branch after `git fetch origin`.
+Run these on your branch. `$(git merge-base develop HEAD)` is the commit your
+branch started from, so the range holds only your branch's commits whether or
+not `develop` has been pushed.
 
 - [ ] `bun run check` passes.
-- [ ] After a removal or rename,
-      `grep -rIwn --exclude=CHANGELOG.md '<old>' plugins/ .claude-plugin/ README.md AGENTS.md docs/PROJECT_MANIFESTO.md`
-      prints nothing.
-- [ ] `git log --format='%h %s%n%b' origin/develop..HEAD -- plugins/<plugin>`
+- [ ] After a removal or rename, the scrub in step 2 prints nothing:
+      `git grep -nIE '(^|[^-[:alnum:]_])<old>($|[^-[:alnum:]_])' -- plugins .claude-plugin README.md AGENTS.md docs ':!docs/items' ':!docs/cycles' ':!**/CHANGELOG.md'`.
+- [ ] `git log --format='%h %s%n%b' $(git merge-base develop HEAD)..HEAD -- plugins/<plugin>`
       shows, for each commit, a `feat(<plugin>)` or `fix(<plugin>)` subject
       (with `!` and a `BREAKING CHANGE:` footer for a removal or rename), and no
       `chore`, `docs` or `style` commit that was meant to release. Run it once
       per plugin the branch touched, including dependents.
-- [ ] `git diff origin/develop..HEAD -- 'plugins/*/.claude-plugin/plugin.json'`
-      shows no change to a `version` line.
+- [ ] `git diff $(git merge-base develop HEAD)..HEAD -- 'plugins/*/.claude-plugin/plugin.json'`
+      shows no changed `version` line in an existing plugin. A new plugin's
+      `plugin.json` shows as an added file with `"version": "0.0.0"`.
 - [ ] For a new plugin, `git show --stat <commit>` lists `plugin.json`,
       `marketplace.json`, `release-please-config.json`,
       `.release-please-manifest.json`, `README.md`, `.project-docs.json` and the
-      manifesto together, and the manifest's version equals `plugin.json`'s.
-- [ ] A cold read ran on each changed skill, and you can say for each point it
-      raised whether you changed the skill or chose to leave it.
+      manifesto together; `plugin.json` and the manifest both say `0.0.0`; and
+      `git log -1 --format=%b <commit>` shows `Release-As: 0.1.0`.
+- [ ] Each plugin commit's body, or the pull request description, says a cold
+      read ran and what changed because of it. Whether the cold read covered the
+      right text can't be checked by a command; a reviewer judges it.
 - [ ] Optional: to see the release PR your commits would produce before they
       reach `main`, run the dry run in the release-please recipe: the bold
       paragraph "Dry-run before it lands", near the end of
       [Phase 1](../../plugins/recipes/skills/recipes/library/release-please/RECIPE.md#phase-1-the-single-package-default).
-      Run its commands exactly as given, from this repository's root: they make
-      their own scratch clones under `/tmp`, and its `--local-path` must name
-      one of those, never a clone with work in it. It needs a GitHub token.
+      Run it from this repository's root, naming your branch as the branch to
+      test. It makes its scratch clones in a new temporary directory; its
+      `--local-path` must name that clone, never a clone with work in it. It
+      needs a GitHub token.
