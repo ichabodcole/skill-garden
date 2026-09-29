@@ -5,7 +5,7 @@ description:
   The README lists every plugin alike, so another developer can't tell that
   operator, hivemind and agent-bridge need services they may not have.
 status: draft
-lifecycle: backlog
+lifecycle: active
 id: 01a0eea3-1598-7305-9575-0fd603f7d958
 kind: task
 generated: { by: claude-opus-5-5, at: 2026-09-29 }

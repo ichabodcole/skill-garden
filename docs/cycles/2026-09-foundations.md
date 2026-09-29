@@ -51,8 +51,9 @@ release-please is watching, so it cuts no release of every plugin.
 Out of scope, deliberately: the two HiveMind chores (plugin content, better
 done together in a HiveMind cycle), and the research on reaching runtimes other
 than Claude Code (open-ended, and better answered once the release process
-exists). The duplicate `html-mockup-prototyping` between `toolbox` and
-project-docs is not filed yet.
+exists). The `html-mockup-prototyping` skill that project-docs also carries
+needs nothing here: it belongs in `toolbox`, and project-docs is removing its
+copy.
 
 ## Outcome
 
@@ -69,3 +70,6 @@ One line per branch, appended by `init-branch` as it opens them:
 lands. Leave this section empty until the first branch; do not carry a
 placeholder line into a real cycle.
 -->
+
+- chore/quick-fixes (open)
+- feature/release-please-recipe (open)

@@ -6,7 +6,7 @@ description:
   agent-bridge MCP server no longer offers; its tool names should match the
   server's.
 status: draft
-lifecycle: backlog
+lifecycle: active
 id: 01a0eea3-1579-769a-a259-8dc4ecf6fc68
 kind: bug
 generated: { by: claude-opus-5-5, at: 2026-09-29 }

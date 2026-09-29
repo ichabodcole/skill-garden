@@ -5,7 +5,7 @@ description:
   The repository is public and carries no LICENSE, so nobody may legally reuse
   its plugins.
 status: draft
-lifecycle: backlog
+lifecycle: active
 id: 01a0ee8e-ddfd-7029-b710-572c3682460e
 kind: chore
 generated: { by: claude-opus-5-5, at: 2026-09-29 }
