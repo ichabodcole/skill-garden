@@ -1,0 +1,52 @@
+# The repository's gate, run where it cannot be skipped.
+#
+# The Husky pre-commit hook runs `bun run check` too, and it is the faster
+# feedback. But a hook is bypassed by `--no-verify` or an edit made on GitHub,
+# and this workflow catches what it missed.
+#
+# It runs `bun run check` and nothing else, as project-docs' docs-check does:
+# splitting the gate into one step per script would make this file a second
+# declaration of what "checked" means, and two declarations drift. The log
+# still names the script that failed, because `check` chains them with `&&`.
+
+name: check
+
+on:
+  # `branches` rather than a bare `push:` so a tag push does not run the gate a
+  # second time on a commit it has already passed on; release-please tags every
+  # release.
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      # `bun install` runs `prepare`, which installs the Git hooks. CI commits
+      # nothing, so skip it.
+      HUSKY: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          # The version package.json's `packageManager` declares. Floating on
+          # `latest` lets a runtime release turn the gate red with no commit
+          # behind it.
+          bun-version: 1.4.0
+      - run: bun install --frozen-lockfile
+      # scripts/validate-plugins.sh needs `claude` on PATH. The runner's Node
+      # installs it; nothing else from Claude Code is needed. `claude plugin
+      # validate` needs no login and no API key: it passes with no credentials
+      # in a fresh container. Pinned for the same reason as Bun; raise it
+      # deliberately.
+      - run: npm install -g @anthropic-ai/claude-code@2.1.285
+      - run: bun run check

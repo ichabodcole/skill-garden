@@ -27,6 +27,13 @@ can't run in CI.
 
 - [ ] A workflow runs the pre-commit gate's checks on every push and pull
       request, and fails the run when any fails.
-- [ ] It doesn't download anything the gate doesn't need.
+- [x] It doesn't download anything the gate doesn't need.
+
+The workflow is `.github/workflows/check.yml`: Bun 1.4.0, the lockfile's
+dependencies, and the Claude Code CLI from npm, then `bun run check`.
+`claude plugin validate` needs no login or API key: it passes in a fresh
+container with no credentials. The job's steps pass, and fail on a broken
+Markdown file or plugin manifest, in a container that mirrors the runner. The
+first box waits on a run seen on GitHub after the branch is pushed.
 
 Depends on [the quality gates](./quality-gates.md), whose gate it runs.

@@ -40,7 +40,9 @@ Run `bun install` once; it also installs the pre-commit hook. Then
 vendored `scripts/pdocs/`), Prettier on the Markdown, `tsc`, the docs check, and
 `claude plugin validate --strict` on the marketplace and every plugin. The
 pre-commit hook formats the staged files and runs the same gate, and refuses the
-commit if it fails. `bun run format` fixes formatting.
+commit if it fails. `bun run format` fixes formatting. CI
+(`.github/workflows/check.yml`) runs the same gate on every push and pull
+request.
 
 The files the project-docs scaffold ships (`scripts/pdocs/`, `docs/SCHEMA.md`,
 the category READMEs, the templates, `docs/STYLE.md`) are left out of
