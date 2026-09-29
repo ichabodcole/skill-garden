@@ -10,18 +10,8 @@
       "interaction-design",
       "playbooks"
     ],
-    "workbench": [
-      "features",
-      "items",
-      "cycles"
-    ],
+    "workbench": ["features", "items", "cycles"],
     "skip": [],
-    "scopes": [
-      "agent-bridge",
-      "hivemind",
-      "operator",
-      "recipes",
-      "toolbox"
-    ]
+    "scopes": ["agent-bridge", "hivemind", "operator", "recipes", "toolbox"]
   }
 }

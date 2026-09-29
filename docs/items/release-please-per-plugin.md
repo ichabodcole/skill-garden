@@ -16,13 +16,13 @@ blocked_by: [01a0ee90-2917-71be-a8bf-c407123d41ce]
 
 # Version each plugin with release-please
 
-Each plugin's version lives in its `plugin.json` and is bumped by hand (minor for
-a behaviour change, patch for typos and formatting). With five plugins, that is
-easy to forget, and nothing records what changed in each version. release-please
-in manifest mode, with one package per plugin directory, would bump each from the
-conventional commits that touch it, write the new version into its
-`plugin.json`, and keep a changelog per plugin. project-docs uses release-please
-for its scaffold, and its config is a reference.
+Each plugin's version lives in its `plugin.json` and is bumped by hand (minor
+for a behaviour change, patch for typos and formatting). With five plugins, that
+is easy to forget, and nothing records what changed in each version.
+release-please in manifest mode, with one package per plugin directory, would
+bump each from the conventional commits that touch it, write the new version
+into its `plugin.json`, and keep a changelog per plugin. project-docs uses
+release-please for its scaffold, and its config is a reference.
 
 ## Definition of done
 

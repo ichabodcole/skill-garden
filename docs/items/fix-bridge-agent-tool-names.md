@@ -18,15 +18,16 @@ cycle: 2026-09-foundations
 # Name the Agent Bridge tools bridge-agent actually has
 
 `plugins/agent-bridge/skills/bridge-agent/SKILL.md` tells agents to ask with
-`post_question` and answer with `post_answer`. The agent-bridge MCP server offers
-neither: conversation now runs through `start_thread`, `reply_to_thread`,
+`post_question` and answer with `post_answer`. The agent-bridge MCP server
+offers neither: conversation now runs through `start_thread`, `reply_to_thread`,
 `get_thread` and `get_pending`, and review feedback through `add_comment`,
 `query_comments` and `resolve_comment`. An agent that follows the skill calls a
 tool that doesn't exist, or falls back on `bridge_help` to find out what does.
 The skill's list of tools in its introduction and its **Key Patterns** section
 both name the old tools.
 
-To see it: `grep -n "post_question\|post_answer" plugins/agent-bridge/skills/bridge-agent/SKILL.md`,
+To see it:
+`grep -n "post_question\|post_answer" plugins/agent-bridge/skills/bridge-agent/SKILL.md`,
 then compare with the tools the agent-bridge MCP server lists.
 
 ## Definition of done

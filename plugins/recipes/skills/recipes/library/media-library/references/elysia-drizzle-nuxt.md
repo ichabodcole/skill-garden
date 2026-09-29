@@ -250,9 +250,7 @@ export async function uploadMedia(file: File, meta: UploadMetadata) {
 
   try {
     await db.transaction(async (tx) => {
-      await tx.insert(mediaItems).values({
-        /* ... */
-      });
+      await tx.insert(mediaItems).values({/* ... */});
       if (meta.tags?.length) {
         const uniqueTags = [...new Set(meta.tags)];
         await tx

@@ -1,7 +1,11 @@
 ---
 type: item
 title: Set up the quality gates from the zed-biome-husky recipe
-description: "Standardise formatting and pre-commit checks with the recipes plugin's zed-biome-husky-quality-gates recipe: Bun, Biome for code, Prettier for Markdown, Zed settings, and a Husky pre-commit gate that also runs the docs check and the plugin validator."
+description:
+  "Standardise formatting and pre-commit checks with the recipes plugin's
+  zed-biome-husky-quality-gates recipe: Bun, Biome for code, Prettier for
+  Markdown, Zed settings, and a Husky pre-commit gate that also runs the docs
+  check and the plugin validator."
 status: draft
 lifecycle: active
 id: 01a0ee8e-de1a-74a4-adc9-ffd5e9b918e8
@@ -17,9 +21,9 @@ formatted (the README table and `marketplace.json` fail Prettier under
 project-docs' config), and nothing stops a commit that breaks the docs gate or a
 plugin manifest. Cole wants the tooling standardised with the recipes plugin's
 `zed-biome-husky-quality-gates` recipe (in this repository at
-`plugins/recipes/skills/recipes/library/`): Bun, Biome as the authority for code,
-Prettier for Markdown, Zed editor settings, and Husky with lint-staged. This
-also covers the `.prettierrc` the pre-push review suggested. Match
+`plugins/recipes/skills/recipes/library/`): Bun, Biome as the authority for
+code, Prettier for Markdown, Zed editor settings, and Husky with lint-staged.
+This also covers the `.prettierrc` the pre-push review suggested. Match
 project-docs' Prettier settings so the scaffold's docs format the same way in
 both repositories.
 

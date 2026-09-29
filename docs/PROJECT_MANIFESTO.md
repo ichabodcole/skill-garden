@@ -32,9 +32,9 @@ plugins are specific to that software and do little without it: `operator`,
 Second, other developers. Some plugins are general, `toolbox` and `recipes`
 among them, and anyone who finds one useful is welcome to it.
 
-The skills are shaped by one person's needs working across projects, so they
-are rarely about team coordination. That is where they come from, not a
-boundary: a team that finds a skill useful should use it.
+The skills are shaped by one person's needs working across projects, so they are
+rarely about team coordination. That is where they come from, not a boundary: a
+team that finds a skill useful should use it.
 
 ## Core Principles
 
@@ -45,10 +45,10 @@ boundary: a team that finds a skill useful should use it.
   plugin, to a framework, or to the author's own tools, and the rules about
   references are looser. That freedom is what lets a skill find out what it is.
 - **Graduation is felt, not measured.** A plugin leaves when it has become its
-  own thing: its purpose has solidified, maintaining it alongside the others
-  has started to hurt, and the gravity is plainly elsewhere. There is no
-  threshold. project-docs is the precedent: once its vision settled, the
-  plugins it had been carrying moved out, and they are here.
+  own thing: its purpose has solidified, maintaining it alongside the others has
+  started to hurt, and the gravity is plainly elsewhere. There is no threshold.
+  project-docs is the precedent: once its vision settled, the plugins it had
+  been carrying moved out, and they are here.
 - **A plugin graduates to where it belongs.** That may be a repository of its
   own, or the repository of the product it serves: `operator` would move into
   the Operator app's repository once there is enough of it. A plugin that

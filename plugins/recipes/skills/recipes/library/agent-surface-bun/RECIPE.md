@@ -61,17 +61,17 @@ wanting to _re-open the same surface_ to push an update or read what changed.
 
 ## Technology Stack
 
-| Layer              | Technology                                                                                   |
-| ------------------ | -------------------------------------------------------------------------------------------- |
-| Runtime            | [Bun](https://bun.sh) 1.3+                                                                   |
-| Language           | TypeScript (Bun runs `.ts` natively, no transpile step)                                      |
-| HTTP/WS server     | `Bun.serve` (built-in) — runs _inside_ the surface/daemon                                    |
-| Daemon process     | Launched via `node:child_process` `spawn` (`detached: true` + `unref()`) — **standing** only |
+| Layer             | Technology                                                                                   |
+| ----------------- | -------------------------------------------------------------------------------------------- |
+| Runtime           | [Bun](https://bun.sh) 1.3+                                                                   |
+| Language          | TypeScript (Bun runs `.ts` natively, no transpile step)                                      |
+| HTTP/WS server    | `Bun.serve` (built-in) — runs _inside_ the surface/daemon                                    |
+| Daemon process    | Launched via `node:child_process` `spawn` (`detached: true` + `unref()`) — **standing** only |
 | Agent ↔ daemon    | HTTP: `POST /cmd`, `GET /state`, `GET /events` (SSE) — **standing**                          |
 | Agent ↔ surface   | `Bun.spawn` + JSON-lines stdio — **one-shot**                                                |
 | Browser ↔ surface | WebSocket (standing, full-state broadcast) or fetch/POST (one-shot)                          |
-| Browser build      | None required (CDN libs); optional Bun HTML-import bundler for the React rung                |
-| Test runner        | `bun test` (built-in)                                                                        |
+| Browser build     | None required (CDN libs); optional Bun HTML-import bundler for the React rung                |
+| Test runner       | `bun test` (built-in)                                                                        |
 
 **Why Bun, not Node / Deno / Python:**
 

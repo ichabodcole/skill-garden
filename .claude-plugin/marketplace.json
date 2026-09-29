@@ -37,7 +37,13 @@
       "name": "hivemind",
       "source": "./plugins/hivemind",
       "category": "knowledge",
-      "tags": ["hivemind", "cross-project", "knowledge-sharing", "playbooks", "feedback"]
+      "tags": [
+        "hivemind",
+        "cross-project",
+        "knowledge-sharing",
+        "playbooks",
+        "feedback"
+      ]
     }
   ]
 }

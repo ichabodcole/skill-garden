@@ -14,7 +14,7 @@ the knowledge loop, not about Operator.
 
 | Skill               | Direction | What it does                                                                                                                               |
 | ------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `hivemind-capture`  | collect   | Capture a **scenario** — a human↔agent decision/thinking delta from implementation work — as a named, reusable takeaway.                  |
+| `hivemind-capture`  | collect   | Capture a **scenario** — a human↔agent decision/thinking delta from implementation work — as a named, reusable takeaway.                   |
 | `hivemind-feedback` | collect   | File **feedback** — a signal about how a skill/process/mechanism performed, usually from an end-of-run touchpoint — to improve it.         |
 | `hivemind-consult`  | disperse  | Pull relevant playbooks/scenarios/feedback into the current project, flag work that violates a known principle, materialize to local docs. |
 | `hivemind-digest`   | refine    | Triage accumulated feedback and scenarios, then **propose** promotions into Playbooks or Lessons Learned (review-gated).                   |
@@ -38,8 +38,8 @@ Operator is reachable.
   `operator-setup` skill from the sibling `operator` plugin. The skills look for
   the credential in the local `.operator` file (conventionally
   `OPERATOR_HIVEMIND_ADMIN_*`) and will ask if it is absent.
-- **Digestify** (optional, from the `spellbook` plugin) for the capture alignment
-  pass — skills fall back to chat if it is unavailable.
+- **Digestify** (optional, from the `spellbook` plugin) for the capture
+  alignment pass — skills fall back to chat if it is unavailable.
 
 ## Installation
 

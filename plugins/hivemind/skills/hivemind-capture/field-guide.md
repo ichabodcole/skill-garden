@@ -11,7 +11,7 @@ read one consistent reference at preflight.
 
 | Type            | Folder          | What it is                                                                                                                  | Bar                                            |
 | --------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| scenario        | Scenarios       | A human↔agent decision/thinking delta from implementation work, distilled into a named reusable takeaway                   | High — "worth re-reading in six months"        |
+| scenario        | Scenarios       | A human↔agent decision/thinking delta from implementation work, distilled into a named reusable takeaway                    | High — "worth re-reading in six months"        |
 | feedback        | Feedback        | A signal about a skill/process/mechanism, often from an end-of-run feedback touchpoint, aimed at improving the tool/process | Lower — hypothesis-shaped / single-instance OK |
 | playbook        | Playbooks       | An abstracted, reusable how-to validated across projects                                                                    | Promoted, not authored directly                |
 | lessons-learned | Lessons Learned | An issue→resolution writeup or a synthesis across scenarios                                                                 | Promoted via digest                            |

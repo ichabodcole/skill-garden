@@ -233,8 +233,7 @@ const MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024; // 25 MB (Whisper limit)
 export class GroqWhisperProvider implements SpeechToTextProvider {
   constructor(
     private model:
-      | "whisper-large-v3-turbo"
-      | "whisper-large-v3" = "whisper-large-v3-turbo"
+      "whisper-large-v3-turbo" | "whisper-large-v3" = "whisper-large-v3-turbo"
   ) {}
 
   async isAvailable(): Promise<boolean> {
