@@ -57,4 +57,9 @@ _No pages yet._
 Repeatable procedures for work that recurs. — see
 [playbooks/README.md](./playbooks/README.md).
 
-_No pages yet._
+- [Changing a Plugin Playbook](./playbooks/change-a-plugin-playbook.md) —
+  Changing a plugin — adding, changing, removing or renaming a skill, or adding
+  a plugin — with the commit type that releases it correctly.
+- [Releasing Plugins Playbook](./playbooks/release-playbook.md) — Releasing
+  plugins — landing develop on main, checking and merging release-please's PR,
+  and syncing develop after.
