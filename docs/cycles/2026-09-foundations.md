@@ -71,5 +71,7 @@ placeholder line into a real cycle.
 -->
 
 - chore/quick-fixes (landed 2026-09-29)
-- feature/release-please-recipe (open)
-- chore/quality-gates (open)
+- feature/release-please-recipe (landed 2026-09-29)
+- chore/quality-gates (landed 2026-09-29)
+- chore/ci-workflow (open)
+- chore/release-please-per-plugin (open)

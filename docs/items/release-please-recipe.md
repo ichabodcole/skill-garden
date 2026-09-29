@@ -6,7 +6,7 @@ description:
   time; a recipe would show an agent how to set it up and which of its
   variations fits the project.
 status: draft
-lifecycle: active
+lifecycle: review
 id: 01a0ee90-2917-71be-a8bf-c407123d41ce
 kind: task
 generated: { by: claude-opus-5-5, at: 2026-09-29 }

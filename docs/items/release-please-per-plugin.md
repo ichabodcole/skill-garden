@@ -6,7 +6,7 @@ description:
   mode, with one package per plugin, would bump each from its own conventional
   commits and keep a changelog per plugin.
 status: draft
-lifecycle: backlog
+lifecycle: active
 id: 01a0ee8e-de57-747a-95a2-cd9254305a1c
 kind: task
 generated: { by: claude-opus-5-5, at: 2026-09-29 }

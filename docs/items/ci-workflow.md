@@ -6,7 +6,7 @@ description:
   the pre-commit hook runs, so a change that skipped the hook still can't land
   unchecked.
 status: draft
-lifecycle: backlog
+lifecycle: active
 id: 01a0ee8e-de38-779d-be19-e022934fbea6
 kind: task
 generated: { by: claude-opus-5-5, at: 2026-09-29 }
