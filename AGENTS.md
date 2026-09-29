@@ -33,6 +33,19 @@ Create documents with the `pdocs` CLI, not by hand:
 `bun scripts/pdocs/cli.ts --help` for what else it does. `check` is the docs
 gate.
 
+## Quality gate
+
+Run `bun install` once; it also installs the pre-commit hook. Then
+`bun run check` is the gate: Biome on the JSON (and any TypeScript outside the
+vendored `scripts/pdocs/`), Prettier on the Markdown, `tsc`, the docs check, and
+`claude plugin validate --strict` on the marketplace and every plugin. The
+pre-commit hook formats the staged files and runs the same gate, and refuses the
+commit if it fails. `bun run format` fixes formatting.
+
+The files the project-docs scaffold ships (`scripts/pdocs/`, `docs/SCHEMA.md`,
+the category READMEs, the templates, `docs/STYLE.md`) are left out of
+formatting, as project-docs leaves them, so a migration doesn't churn them.
+
 ## Branches
 
 Work branches from `develop` and lands back on it; `main` is what the

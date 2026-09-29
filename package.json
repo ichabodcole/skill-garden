@@ -1,0 +1,34 @@
+{
+  "name": "skill-garden",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "bun@1.4.0",
+  "scripts": {
+    "prepare": "husky",
+    "check": "bun run lint && bun run format:check && bun run typecheck && bun run check:docs && bun run validate:plugins",
+    "lint": "biome check --error-on-warnings .",
+    "lint:fix": "biome check --write --error-on-warnings .",
+    "format": "biome format --write . && prettier --write \"**/*.md\"",
+    "format:check": "prettier --check \"**/*.md\"",
+    "format:md": "prettier --write \"**/*.md\"",
+    "typecheck": "tsc --noEmit",
+    "check:docs": "bun scripts/pdocs/cli.ts check --format text",
+    "validate:plugins": "./scripts/validate-plugins.sh"
+  },
+  "lint-staged": {
+    "*.{ts,json,jsonc}": [
+      "biome check --write --error-on-warnings --no-errors-on-unmatched"
+    ],
+    "*.md": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.14",
+    "@types/bun": "^1.4.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.9",
+    "typescript": "^5.9.3"
+  }
+}
