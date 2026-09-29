@@ -46,7 +46,7 @@ jobs:
       # scripts/validate-plugins.sh needs `claude` on PATH. The runner's Node
       # installs it; nothing else from Claude Code is needed. `claude plugin
       # validate` needs no login and no API key: it passes with no credentials
-      # in a fresh container. Pinned for the same reason as Bun; raise it
-      # deliberately.
-      - run: npm install -g @anthropic-ai/claude-code@2.1.285
+      # in a fresh container. Unpinned, unlike Bun: the CLI updates constantly
+      # and the gate should validate against what developers run.
+      - run: npm install -g @anthropic-ai/claude-code
       - run: bun run check
