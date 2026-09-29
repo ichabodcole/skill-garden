@@ -26,11 +26,11 @@ version histories.
 
 ## Definition of done
 
-- [ ] A playbook for changing a plugin and one for releasing plugins, each with
+- [x] A playbook for changing a plugin and one for releasing plugins, each with
       Goal, Steps and Verification.
-- [ ] `AGENTS.md` says a typo fix to a skill is `fix(<plugin>)`, since `chore`
+- [x] `AGENTS.md` says a typo fix to a skill is `fix(<plugin>)`, since `chore`
       releases nothing, and that removing or renaming a skill is breaking. It
       points to the playbooks.
-- [ ] The manifesto's recipe count is right, or worded so it can't go stale.
+- [x] The manifesto's recipe count is right, or worded so it can't go stale.
 - [ ] An agent that hasn't seen this work follows the change playbook on a trial
       change and reports nothing it had to guess.
