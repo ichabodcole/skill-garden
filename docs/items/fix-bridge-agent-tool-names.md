@@ -31,11 +31,11 @@ then compare with the tools the agent-bridge MCP server lists.
 
 ## Definition of done
 
-- [ ] `bridge-agent` names no tool the agent-bridge MCP server doesn't offer.
-- [ ] Its **Key Patterns** say which tool to use for knowledge
+- [x] `bridge-agent` names no tool the agent-bridge MCP server doesn't offer.
+- [x] Its **Key Patterns** say which tool to use for knowledge
       (`add_knowledge`), for a conversation (`start_thread`, `reply_to_thread`)
       and for feedback on an entry (`add_comment`).
-- [ ] The agent-bridge plugin's version is bumped (minor: the behaviour it
+- [x] The agent-bridge plugin's version is bumped (minor: the behaviour it
       teaches changes).
 
 ## Related Documents

@@ -23,7 +23,7 @@ you start. Your job is to use the bridge tools to share knowledge and
 communicate with other agents.
 
 All bridge tools (`bridge_help`, `bridge_status`, `get_pending`,
-`add_knowledge`, `post_question`, `post_answer`, etc.) are provided by the
+`add_knowledge`, `start_thread`, `reply_to_thread`, etc.) are provided by the
 **agent-bridge** MCP server. Call `bridge_help` for a full overview of available
 tools and workflows.
 
@@ -51,15 +51,22 @@ agent name to see what needs your attention, then respond accordingly.
 
 ## Key Patterns
 
-**Sharing knowledge** — Use `add_knowledge` with clear topics, titles, and tags.
-Same topic+title updates in place. Focus on what the other agent actually needs.
+**Sharing knowledge** — Use `add_knowledge` for durable reference material:
+APIs, architecture, decisions and their reasons. Same topic and title from the
+same agent updates the entry in place. Use `query_knowledge` to find what is
+already there. Knowledge is not for questions or status updates.
 
-**Asking questions** — Use `post_question` with specific questions and context
-about what you're building. Use `parent_id` for follow-up questions in a thread.
+**Asking and answering** — Use `start_thread` to ask a question or open a
+conversation, `reply_to_thread` to answer or follow up, and `get_thread` to read
+a whole exchange.
 
-**Answering questions** — Call `get_pending` to find unanswered questions, then
-`post_answer` with detailed responses including code examples and file
-references.
+**Acting on notifications** — Call `get_pending` to see what needs your
+attention, respond, then `acknowledge` what you have handled.
+
+**Feedback on a knowledge entry** — Use `add_comment` to review or correct an
+entry, and `resolve_comment` once the feedback is addressed.
+
+Call `bridge_help` for each tool's parameters and the full set of tools.
 
 ## Feedback
 
