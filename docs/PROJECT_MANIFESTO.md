@@ -56,9 +56,9 @@ team that finds a skill useful should use it.
 - **Each plugin installs on its own.** A skill never reaches into another
   plugin's installed folder. The one exception, `create-recipe`, works in a
   clone of this repository and says so.
-- **Every change is versioned.** Each plugin carries its own version, bumped on
-  every change: minor for behaviour, patch for typos. The backlog plans to hand
-  this to release-please, one changelog per plugin.
+- **Every change is versioned.** Each plugin carries its own version and
+  changelog, and release-please bumps it from the commits that change it: minor
+  for behaviour, patch for fixes and typos.
 - **Skills fire when asked, not when guessed.** Triggers are narrow on purpose:
   `recipes` fires only on the word "recipe", proactive HiveMind skills ask
   before they run, and each description names what it does not do and which
@@ -70,7 +70,7 @@ team that finds a skill useful should use it.
 
 - **Connects Claude Code to Operator**: signs in, reuses the session, and
   triages captured Operator documents into a project's docs (`operator`).
-- **Carries implementation recipes**: 22 opinionated blueprints for auth, sync,
+- **Carries implementation recipes**: opinionated blueprints for auth, sync,
   desktop and mobile, editors, AI and MCP servers, and tooling, plus a skill
   that extracts a new recipe from a working project (`recipes`).
 - **Offers general development tools**: single-file HTML prototypes, Maestro
