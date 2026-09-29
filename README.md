@@ -14,13 +14,13 @@ graduate out when they are ready.
 
 ## Plugins
 
-| Plugin         | What it does                                                                         |
-| -------------- | ------------------------------------------------------------------------------------ |
-| `operator`     | Authenticate to Operator and triage its documents into a project's docs              |
-| `recipes`      | Opinionated implementation recipes for specific stack patterns, and a skill to write them |
-| `toolbox`      | Interactive HTML mockups, Maestro mobile testing, screenshot optimisation            |
-| `agent-bridge` | Join an Agent Bridge for cross-project knowledge sharing between agents              |
-| `hivemind`     | Capture, consult, digest and give feedback to a cross-project knowledge base         |
+| Plugin         | What it does                                                                              | Needs                                                                     |
+| -------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `operator`     | Authenticate to Operator and triage its documents into a project's docs                   | An Operator account and API key                                           |
+| `recipes`      | Opinionated implementation recipes for specific stack patterns, and a skill to write them | Nothing extra                                                             |
+| `toolbox`      | Interactive HTML mockups, Maestro mobile testing, screenshot optimisation                 | Nothing extra; the Maestro skill uses the Maestro CLI                     |
+| `agent-bridge` | Join an Agent Bridge for cross-project knowledge sharing between agents                   | The Agent Bridge MCP server and desktop app                               |
+| `hivemind`     | Capture, consult, digest and give feedback to a cross-project knowledge base              | Operator and a HiveMind workspace; signs in through the `operator` plugin |
 
 Each plugin's own `README.md` or skill files say more.
 

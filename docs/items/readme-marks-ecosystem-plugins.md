@@ -25,9 +25,9 @@ for them before installing one.
 
 ## Definition of done
 
-- [ ] The README says, for each plugin, whether it works on its own or what
+- [x] The README says, for each plugin, whether it works on its own or what
       service it needs.
-- [ ] Each of the three plugins' marketplace descriptions names the service it
+- [x] Each of the three plugins' marketplace descriptions names the service it
       needs.
 
 ## Related Documents
