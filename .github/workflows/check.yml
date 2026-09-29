@@ -35,7 +35,7 @@ jobs:
       # nothing, so skip it.
       HUSKY: "0"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
         with:
           # The version package.json's `packageManager` declares. Floating on
