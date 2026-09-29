@@ -7,6 +7,7 @@ lifecycle: backlog
 id: 01a0ee8e-de1a-74a4-adc9-ffd5e9b918e8
 kind: task
 generated: { by: claude-opus-5-5, at: 2026-09-29 }
+cycle: 2026-09-foundations
 ---
 
 # Set up the quality gates from the zed-biome-husky recipe

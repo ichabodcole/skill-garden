@@ -11,6 +11,7 @@ id: 01a0ee90-2917-71be-a8bf-c407123d41ce
 kind: task
 generated: { by: claude-opus-5-5, at: 2026-09-29 }
 scope: recipes
+cycle: 2026-09-foundations
 ---
 
 # Write a release-please recipe

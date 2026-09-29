@@ -11,6 +11,7 @@ id: 01a0ee8e-de38-779d-be19-e022934fbea6
 kind: task
 generated: { by: claude-opus-5-5, at: 2026-09-29 }
 blocked_by: [01a0ee8e-de1a-74a4-adc9-ffd5e9b918e8]
+cycle: 2026-09-foundations
 ---
 
 # Run the repository's gate in CI
