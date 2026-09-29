@@ -26,12 +26,19 @@ release-please for its scaffold, and its config is a reference.
 
 ## Definition of done
 
-- [ ] A release-please workflow and manifest config with one package per plugin,
+- [x] A release-please workflow and manifest config with one package per plugin,
       each updating `plugins/<name>/.claude-plugin/plugin.json`'s `version` and
       its own `CHANGELOG.md`.
 - [ ] A commit touching one plugin proposes a release of that plugin only, and a
       docs-only commit proposes none.
-- [ ] `AGENTS.md` says how versions are bumped now.
+- [x] `AGENTS.md` says how versions are bumped now.
+
+The second box holds in a local dry run
+(`release-please release-pr --dry-run --local` against a clone whose `main` is
+this branch) but is unticked until the action has run on GitHub: the first run
+after this lands on `main` should propose `recipes` 2.4.1 from its
+`fix(recipes)` commit, and nothing for a plugin no `feat` or `fix` has touched
+since `bootstrap-sha`.
 
 Best done with [the release-please recipe](./release-please-recipe.md), as its
 first real use.
