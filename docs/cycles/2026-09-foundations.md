@@ -71,5 +71,6 @@ lands. Leave this section empty until the first branch; do not carry a
 placeholder line into a real cycle.
 -->
 
-- chore/quick-fixes (open)
+- chore/quick-fixes (landed 2026-09-29)
 - feature/release-please-recipe (open)
+- chore/quality-gates (open)

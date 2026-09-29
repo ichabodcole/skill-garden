@@ -3,7 +3,7 @@ type: item
 title: Set up the quality gates from the zed-biome-husky recipe
 description: "Standardise formatting and pre-commit checks with the recipes plugin's zed-biome-husky-quality-gates recipe: Bun, Biome for code, Prettier for Markdown, Zed settings, and a Husky pre-commit gate that also runs the docs check and the plugin validator."
 status: draft
-lifecycle: backlog
+lifecycle: active
 id: 01a0ee8e-de1a-74a4-adc9-ffd5e9b918e8
 kind: task
 generated: { by: claude-opus-5-5, at: 2026-09-29 }
