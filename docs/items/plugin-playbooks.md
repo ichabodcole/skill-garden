@@ -32,5 +32,7 @@ version histories.
       releases nothing, and that removing or renaming a skill is breaking. It
       points to the playbooks.
 - [x] The manifesto's recipe count is right, or worded so it can't go stale.
-- [ ] An agent that hasn't seen this work follows the change playbook on a trial
-      change and reports nothing it had to guess.
+- [x] An agent that hasn't seen this work follows the change playbook on a trial
+      change and reports nothing it had to guess. 2026-09-29: the trial ran, and
+      every finding it reported is addressed in the playbooks and the
+      release-please recipe.
