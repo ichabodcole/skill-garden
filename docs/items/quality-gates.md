@@ -29,10 +29,10 @@ both repositories.
 
 ## Definition of done
 
-- [ ] The recipe is applied: `package.json` with Bun scripts, Biome, Prettier
+- [x] The recipe is applied: `package.json` with Bun scripts, Biome, Prettier
       for Markdown, Zed settings, and a Husky pre-commit hook through
       lint-staged.
-- [ ] The pre-commit gate also runs `bun scripts/pdocs/cli.ts check` and
+- [x] The pre-commit gate also runs `bun scripts/pdocs/cli.ts check` and
       `claude plugin validate --strict` on the marketplace and each plugin, and
       refuses a commit that fails any of them.
-- [ ] The existing files pass the gate, formatted in one commit of their own.
+- [x] The existing files pass the gate, formatted in one commit of their own.
