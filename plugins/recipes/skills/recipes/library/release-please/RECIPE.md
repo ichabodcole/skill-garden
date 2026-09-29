@@ -186,18 +186,27 @@ release-please cuts no release by itself.
 **Dry-run before it lands.** The action reads its config from `main`, so nothing
 runs until the config is there. The CLI can run the same logic against a local
 clone, reading GitHub only for the repository's releases, tags and pull requests
-(a token is needed; nothing is written):
+(nothing is written). Commit what you want to test on a branch first, then run
+this from the repository's root, with `<branch>` that branch:
 
 ```bash
-# A scratch clone whose origin's main is the state to test.
-git clone --bare . /tmp/rp-origin.git
-git clone /tmp/rp-origin.git /tmp/rp-sim
-# In /tmp/rp-sim: check out the branch, add test commits, then
-#   git push -f origin HEAD:main
+# Scratch clones in a fresh directory, so runs never collide.
+RP=$(mktemp -d)
+git clone --bare . "$RP/origin.git"
+git clone -b <branch> "$RP/origin.git" "$RP/sim"
+# Make the branch the scratch origin's main, the state to test.
+git -C "$RP/sim" push -f origin HEAD:main
 npx release-please@17 release-pr --dry-run --trace \
   --repo-url <owner>/<repo> --token "$(gh auth token)" \
-  --target-branch main --local --local-path /tmp/rp-sim
+  --target-branch main --local --local-path "$RP/sim"
+rm -rf "$RP"
 ```
+
+`--token` is required: the CLI reads no token from the environment, and without
+one it fails with a 401. If an agent's sandbox refuses the inline
+`"$(gh auth token)"`, don't work around it by writing the token to a file: make
+the clones, then ask the person to run the `npx` line themselves, with `$RP`
+written out as the directory, and paste its output; run the `rm -rf` after.
 
 It prints each release PR it would open, with the diff of every file it would
 change. `--local` runs `git fetch`, `git checkout` and `git reset --hard` in
