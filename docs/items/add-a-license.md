@@ -21,5 +21,5 @@ pre-push review.
 
 ## Definition of done
 
-- [ ] A `LICENSE` file at the root, chosen by Cole, and each plugin's
+- [x] A `LICENSE` file at the root, chosen by Cole, and each plugin's
       `plugin.json` names the same license if the manifest supports it.
