@@ -1,0 +1,23 @@
+name: release-please
+
+# Versions each plugin from its conventional commits: one package per
+# plugins/<name>/, configured in release-please-config.json. Runs on main, the
+# repository's default branch and what the marketplace serves.
+on:
+  push:
+    branches:
+      - main
+  # The push trigger cannot recover a missed run: if a run was blocked, fixing
+  # the cause fires nothing. This is the way to re-run it.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4

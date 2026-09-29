@@ -13,8 +13,21 @@ its own repository.
 
 ## Changing a plugin
 
-- Bump the plugin's `version` in its `plugin.json` with every change: minor for
-  any change in behaviour, patch only for typos and formatting.
+- Don't bump `version` in `plugin.json` by hand. release-please bumps it from
+  the conventional commits that touch `plugins/<name>/`, and writes that
+  plugin's `CHANGELOG.md`, in a release PR on `main`; merging the PR releases.
+- Type and scope each plugin commit by what it changes for the plugin's user:
+  `feat(hivemind): ...` for a change in behaviour or in what a skill tells the
+  agent (minor), `fix(hivemind): ...` for a correction (patch), `feat!:` or a
+  `BREAKING CHANGE:` footer for a major (a minor below 1.0). A skill change
+  typed `docs`, `chore` or `style` releases nothing, and so does any commit
+  outside `plugins/`. A commit touching two plugins counts, with its one type,
+  toward both.
+- To force a version, add a `Release-As: x.y.z` footer to a `feat` or `fix`
+  commit that touches that plugin only. An empty commit touches every plugin, so
+  its `Release-As:` sets them all to that version.
+- A new plugin: add it to `release-please-config.json` and its version to
+  `.release-please-manifest.json` in the commit that adds it.
 - A skill's paths are relative to its plugin. Don't reach into another plugin's
   installed folder from a skill: each plugin is installed on its own. A skill
   that works in a clone of this repository (as `create-recipe` does) may name
@@ -51,4 +64,5 @@ formatting, as project-docs leaves them, so a migration doesn't churn them.
 ## Branches
 
 Work branches from `develop` and lands back on it; `main` is what the
-marketplace serves.
+marketplace serves. After merging a release PR on `main`, merge `main` back into
+`develop` straight away, so `develop` carries the new versions.

@@ -1,0 +1,7 @@
+{
+  "plugins/agent-bridge": "1.1.0",
+  "plugins/hivemind": "0.2.2",
+  "plugins/operator": "1.2.0",
+  "plugins/recipes": "2.4.0",
+  "plugins/toolbox": "3.0.0"
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "simple",
+  "bootstrap-sha": "d54659b0e1808686a1690afe448ff2ea88e951b7",
+  "bump-minor-pre-major": true,
+  "extra-files": [
+    {
+      "type": "json",
+      "path": ".claude-plugin/plugin.json",
+      "jsonpath": "$.version"
+    }
+  ],
+  "packages": {
+    "plugins/agent-bridge": { "component": "agent-bridge" },
+    "plugins/hivemind": { "component": "hivemind" },
+    "plugins/operator": { "component": "operator" },
+    "plugins/recipes": { "component": "recipes" },
+    "plugins/toolbox": { "component": "toolbox" }
+  }
+}

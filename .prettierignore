@@ -4,6 +4,9 @@ node_modules/
 # Agent worktrees and local settings
 .claude/
 
+# release-please writes the plugins' changelogs in its own format.
+plugins/*/CHANGELOG.md
+
 # Files the project-docs scaffold ships. project-docs does not format its
 # scaffold output, and a migration overwrites the owned files and compares the
 # seeded ones by hash, so formatting them here would only make churn.
