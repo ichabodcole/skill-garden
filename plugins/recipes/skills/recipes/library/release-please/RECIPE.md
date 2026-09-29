@@ -160,7 +160,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v5
 ```
 
 The action reads `release-please-config.json` and
@@ -595,7 +595,7 @@ If the repository's default branch on GitHub is `develop`, tell the action which
 branch it releases from:
 
 ```yaml
-- uses: googleapis/release-please-action@v4
+- uses: googleapis/release-please-action@v5
   with:
     target-branch: main
 ```
