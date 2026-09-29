@@ -6,7 +6,7 @@ description:
   mode, with one package per plugin, would bump each from its own conventional
   commits and keep a changelog per plugin.
 status: draft
-lifecycle: review
+lifecycle: done
 id: 01a0ee8e-de57-747a-95a2-cd9254305a1c
 kind: task
 generated: { by: claude-opus-5-5, at: 2026-09-29 }
@@ -29,16 +29,16 @@ release-please for its scaffold, and its config is a reference.
 - [x] A release-please workflow and manifest config with one package per plugin,
       each updating `plugins/<name>/.claude-plugin/plugin.json`'s `version` and
       its own `CHANGELOG.md`.
-- [ ] A commit touching one plugin proposes a release of that plugin only, and a
+- [x] A commit touching one plugin proposes a release of that plugin only, and a
       docs-only commit proposes none.
 - [x] `AGENTS.md` says how versions are bumped now.
 
-The second box holds in a local dry run
-(`release-please release-pr --dry-run --local` against a clone whose `main` is
-this branch) but is unticked until the action has run on GitHub: the first run
-after this lands on `main` should propose `recipes` 2.4.1 from its
-`fix(recipes)` commit, and nothing for a plugin no `feat` or `fix` has touched
-since `bootstrap-sha`.
+The first run on GitHub, after `main` moved to `c67bffb`, proposed `recipes`
+2.4.1 alone ([PR #1](https://github.com/ichabodcole/skill-garden/pull/1)), from
+its two `fix(recipes)` commits after `bootstrap-sha`. It ignored the docs, CI
+and item commits in the same range, and the hand-bumped commits before
+`bootstrap-sha`. Merging the PR tagged `recipes-v2.4.1` and cut its GitHub
+Release.
 
 Best done with [the release-please recipe](./release-please-recipe.md), as its
 first real use.

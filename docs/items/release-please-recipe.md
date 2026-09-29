@@ -6,7 +6,7 @@ description:
   time; a recipe would show an agent how to set it up and which of its
   variations fits the project.
 status: draft
-lifecycle: review
+lifecycle: done
 id: 01a0ee90-2917-71be-a8bf-c407123d41ce
 kind: task
 generated: { by: claude-opus-5-5, at: 2026-09-29 }
@@ -72,6 +72,6 @@ write the recipe around the first kind.
 - [x] It sets up a default for a single-package project, and says which
       variation to choose for each situation above, with a config for each.
 - [x] Its known-traps section names each trap, how to spot it, and the fix.
-- [ ] It is applied first to
+- [x] It is applied first to
       [versioning each plugin](./release-please-per-plugin.md) in this
       repository, and corrected from what that run finds.

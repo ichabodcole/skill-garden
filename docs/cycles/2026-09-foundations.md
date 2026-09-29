@@ -6,7 +6,7 @@ description:
   from its own commits.
 tags: [tooling, release, ci]
 status: draft
-lifecycle: active
+lifecycle: closed
 started: 2026-09-29
 appetite:
   Stop when a commit that breaks formatting, the docs gate or a plugin manifest
@@ -14,6 +14,7 @@ appetite:
   alone.
 after: []
 generated: { by: claude-opus-5-5, at: 2026-09-29 }
+closed: 2026-09-29
 ---
 
 # Repository foundations
@@ -56,7 +57,34 @@ here: it belongs in `toolbox`, and project-docs is removing its copy.
 
 ## Outcome
 
-_Written at close, not before._
+Everything in scope shipped, on the day the cycle opened. The repository has an
+MIT license and a gate, `bun run check`: Biome, Prettier on Markdown, `tsc`,
+`pdocs check`, and `claude plugin validate --strict` on the marketplace and each
+plugin. The pre-commit hook runs the gate, and so does CI on every push and pull
+request. `claude plugin validate` needs no credentials, so CI needs no secrets.
+Each plugin now gets its version and changelog from its own commits. The first
+release, recipes 2.4.1, proposed only that plugin, as the dry runs predicted.
+The two fixes found while writing the manifesto landed too: `bridge-agent` names
+the tools the server offers, and the README says what each plugin needs. Nothing
+was cut or carried over.
+
+What was learned:
+
+- **Recipes improve when they are used.** Applying the release-please recipe
+  here corrected it in seven places. The one that mattered: release-please's
+  generated changelogs fail Prettier, which would have made the hook refuse
+  every commit after the first release. Applying a new recipe to a real project
+  before calling it done is worth keeping as a habit.
+- **Agent worktrees start from the first commit, not `develop`.** Every agent
+  had to reset its worktree to `develop` first. Brief the next cycle's agents
+  with the expected base commit.
+- **Pushing `main` is the owner's step.** This session's permission check
+  refuses it as a deploy, so plan for a hand-off at release time.
+- **Leave a required check off `main` for now.** Release PRs, opened with the
+  workflow's own token, get no checks.
+
+The next cycle's natural core is
+[the writing plugin](../items/writing-plugin.md), still in triage.
 
 ## Sessions
 
@@ -74,4 +102,4 @@ placeholder line into a real cycle.
 - feature/release-please-recipe (landed 2026-09-29)
 - chore/quality-gates (landed 2026-09-29)
 - chore/ci-workflow (landed 2026-09-29)
-- chore/release-please-per-plugin (landed 2026-09-29)
+- chore/release-please-per-plugin (landed 2026-09-29; released as recipes 2.4.1)
