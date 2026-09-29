@@ -6,7 +6,7 @@ description:
   agent's memory; playbooks would let any agent, Claude or not, do both
   correctly.
 status: draft
-lifecycle: active
+lifecycle: done
 id: 01a0eed0-d4eb-770b-9023-d6959fa2f793
 kind: task
 generated: { by: claude-opus-5-5, at: 2026-09-29 }
