@@ -13,6 +13,12 @@ its own repository.
 
 ## Changing a plugin
 
+The steps are in
+[docs/playbooks/change-a-plugin-playbook.md](./docs/playbooks/change-a-plugin-playbook.md),
+and releasing in
+[docs/playbooks/release-playbook.md](./docs/playbooks/release-playbook.md). The
+rules:
+
 - Don't bump `version` in `plugin.json` by hand. release-please bumps it from
   the conventional commits that touch `plugins/<name>/`, and writes that
   plugin's `CHANGELOG.md`, in a release PR on `main`; merging the PR releases.
@@ -21,8 +27,9 @@ its own repository.
   agent (minor), `fix(hivemind): ...` for a correction (patch), `feat!:` or a
   `BREAKING CHANGE:` footer for a major (a minor below 1.0). A skill change
   typed `docs`, `chore` or `style` releases nothing, and so does any commit
-  outside `plugins/`. A commit touching two plugins counts, with its one type,
-  toward both.
+  outside `plugins/`, so a typo or wording fix to a skill is `fix(<plugin>)`.
+  Removing or renaming a skill is breaking. A commit touching two plugins
+  counts, with its one type, toward both.
 - To force a version, add a `Release-As: x.y.z` footer to a `feat` or `fix`
   commit that touches that plugin only. An empty commit touches every plugin, so
   its `Release-As:` sets them all to that version.
