@@ -76,6 +76,11 @@ at `library/<name>/RECIPE.md` — read that file for the full guide.
   for agents) and how to extend a scaffolded CLI.
 - **`zed-biome-husky-quality-gates`** — Biome as the single format/lint
   authority with Zed editor integration and Husky pre-commit enforcement.
+- **`release-please`** — Versions and changelogs from conventional commits via
+  release-please in GitHub Actions: a single-package default, then the variation
+  for each shape (extra version files, pre-1.0, excluded paths, independent or
+  linked packages, a Claude plugin or one package per plugin, develop/main), and
+  the traps that propose the wrong release.
 
 ---
 

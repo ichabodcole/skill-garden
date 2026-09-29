@@ -67,11 +67,11 @@ write the recipe around the first kind.
 
 ## Definition of done
 
-- [ ] A `release-please` recipe in `plugins/recipes/skills/recipes/library/`,
+- [x] A `release-please` recipe in `plugins/recipes/skills/recipes/library/`,
       written with the `create-recipe` skill, listed in the recipes index.
-- [ ] It sets up a default for a single-package project, and says which
+- [x] It sets up a default for a single-package project, and says which
       variation to choose for each situation above, with a config for each.
-- [ ] Its known-traps section names each trap, how to spot it, and the fix.
+- [x] Its known-traps section names each trap, how to spot it, and the fix.
 - [ ] It is applied first to
       [versioning each plugin](./release-please-per-plugin.md) in this
       repository, and corrected from what that run finds.
