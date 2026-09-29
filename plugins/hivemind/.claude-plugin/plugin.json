@@ -1,6 +1,6 @@
 {
   "name": "hivemind",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Cross-project knowledge cycle — capture scenarios and feedback, consult accumulated knowledge, and digest it into playbooks. Needs Operator and a HiveMind workspace.",
   "author": {
     "name": "Cole Reed"
