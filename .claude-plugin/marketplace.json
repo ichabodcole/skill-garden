@@ -1,0 +1,43 @@
+{
+  "name": "skill-garden",
+  "owner": {
+    "name": "Cole Reed",
+    "email": "alienlobsterbuffet.dev@gmail.com"
+  },
+  "metadata": {
+    "description": "Claude Code plugins that are growing: skills that started in another project and are not yet big enough for a repository of their own",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "operator",
+      "source": "./plugins/operator",
+      "category": "documentation",
+      "tags": ["operator", "triage", "intake", "documentation"]
+    },
+    {
+      "name": "recipes",
+      "source": "./plugins/recipes",
+      "category": "documentation",
+      "tags": ["recipes", "scaffolding", "documentation"]
+    },
+    {
+      "name": "toolbox",
+      "source": "./plugins/toolbox",
+      "category": "development",
+      "tags": ["testing", "optimization", "prototyping", "utilities"]
+    },
+    {
+      "name": "agent-bridge",
+      "source": "./plugins/agent-bridge",
+      "category": "communication",
+      "tags": ["agent-bridge", "cross-project", "knowledge-sharing"]
+    },
+    {
+      "name": "hivemind",
+      "source": "./plugins/hivemind",
+      "category": "knowledge",
+      "tags": ["hivemind", "cross-project", "knowledge-sharing", "playbooks", "feedback"]
+    }
+  ]
+}

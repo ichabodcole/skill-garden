@@ -1,0 +1,1416 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mockup — AI Models Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
+
+    <!--
+      ============================================================
+      THEME
+      Semantic classes built on Tailwind utilities via @apply.
+      Change the color palette here to match the target project's
+      design system; the markup below stays readable and consistent.
+
+      Default: dark theme (slate-950 base).
+      For light themes: adjust base/surface/text colors throughout.
+      ============================================================
+    -->
+    <style type="text/tailwindcss">
+      /* ---- Base ---- */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* ---- Typography ---- */
+      .page-title {
+        @apply text-2xl font-bold text-white;
+      }
+      .section-title {
+        @apply text-xs font-semibold text-slate-400 uppercase tracking-wide;
+      }
+      .label {
+        @apply text-xs text-slate-500;
+      }
+      .text-body {
+        @apply text-sm text-slate-200 leading-relaxed;
+      }
+      .text-muted {
+        @apply text-sm text-slate-400;
+      }
+      .text-faint {
+        @apply text-xs text-slate-500;
+      }
+      .text-mono {
+        @apply text-xs text-slate-600 font-mono;
+      }
+      .link {
+        @apply text-sm text-blue-400 hover:text-blue-300 transition-colors;
+      }
+
+      /* ---- Surfaces ---- */
+      .card {
+        @apply bg-slate-900 border border-slate-800 rounded-lg overflow-hidden;
+      }
+      .inset {
+        @apply bg-slate-950 border border-slate-800 rounded-md;
+      }
+      .panel-section {
+        @apply px-5 py-4 border-b border-slate-800;
+      }
+
+      /* ---- Badges ---- */
+      .badge {
+        @apply text-xs px-2 py-0.5 rounded border font-medium;
+      }
+      .badge-accent {
+        @apply badge bg-blue-500/10 text-blue-300 border-blue-500/20;
+      }
+      .badge-muted {
+        @apply badge bg-slate-700/50 text-slate-300 border-slate-600;
+      }
+      .badge-warning {
+        @apply badge bg-amber-500/20 text-amber-400 border-amber-500/30;
+      }
+
+      /* ---- Status indicators ---- */
+      .status-dot {
+        @apply w-2 h-2 rounded-full shrink-0;
+      }
+      .status-dot-open {
+        @apply status-dot bg-amber-400;
+      }
+      .status-dot-success {
+        @apply status-dot bg-emerald-400;
+      }
+
+      /* ---- Buttons ---- */
+      .btn {
+        @apply text-sm px-4 py-2 rounded-md font-medium transition-colors
+               flex items-center justify-center gap-2;
+      }
+      .btn-primary {
+        @apply btn bg-emerald-600 text-white hover:bg-emerald-500;
+      }
+      .btn-outline {
+        @apply btn border border-slate-700 text-slate-300 hover:bg-slate-800;
+      }
+      .btn-ghost {
+        @apply text-xs px-3 py-2 rounded-md border border-slate-800
+               text-slate-500 hover:text-slate-300 hover:border-slate-700
+               transition-colors flex items-center justify-center gap-2;
+      }
+      .btn-icon {
+        @apply text-slate-500 hover:text-white transition-colors;
+      }
+
+      /* ---- Form controls ---- */
+      .input {
+        @apply bg-slate-900 border border-slate-700 text-sm text-white
+               px-3 py-2 rounded-md placeholder-slate-500
+               focus:outline-none focus:border-slate-500;
+      }
+      .select {
+        @apply input cursor-pointer text-slate-300;
+      }
+      .textarea {
+        @apply w-full bg-slate-950 border border-slate-800 text-sm text-white
+               px-3 py-2 rounded-md placeholder-slate-600
+               focus:outline-none focus:border-slate-600 resize-none;
+      }
+
+      /* ---- Navigation ---- */
+      .nav-item {
+        @apply w-full flex items-center gap-3 px-3 py-2 rounded-md
+               text-sm font-medium transition-colors;
+      }
+      .nav-item-active {
+        @apply bg-slate-800 text-white;
+      }
+      .nav-item-inactive {
+        @apply text-slate-400 hover:text-white hover:bg-slate-800/50;
+      }
+
+      /* ---- Utilities ---- */
+      .filter-pill {
+        @apply inline-flex items-center gap-1 text-xs bg-slate-800
+               text-slate-300 border border-slate-700 px-2 py-0.5 rounded;
+      }
+      .skeleton {
+        background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+        border-radius: 4px;
+      }
+      @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+    </style>
+
+    <!--
+      ============================================================
+      APP STATE
+      Register all state and methods with Alpine.data() below.
+      Use x-data="app" on the root element in the body.
+      ============================================================
+    -->
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.data("app", () => ({
+          state: "default",
+          sortOpen: false,
+          modalityOpen: false,
+          visibilityFilter: "all",
+          descSearch: false,
+        }));
+      });
+    </script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+  </head>
+  <body class="bg-slate-950 text-slate-200 min-h-screen">
+    <div x-data="app">
+      <!-- State switcher -->
+      <div
+        class="bg-amber-950/60 border-b border-amber-800/40 px-6 py-2 flex items-center gap-3 sticky top-0 z-50"
+      >
+        <span class="section-title text-amber-500">Prototype state</span>
+        <div class="flex gap-2 flex-wrap">
+          <button
+            @click="state = 'default'; sortOpen = false; modalityOpen = false"
+            :class="state === 'default' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            1 · Default
+          </button>
+          <button
+            @click="state = 'category-current'; sortOpen = false; modalityOpen = false"
+            :class="state === 'category-current' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            2 · Current Model
+          </button>
+          <button
+            @click="state = 'category-new'; sortOpen = false; modalityOpen = false"
+            :class="state === 'category-new' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            3 · New Model
+          </button>
+          <button
+            @click="state = 'add-modal'; sortOpen = false; modalityOpen = false"
+            :class="state === 'add-modal' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            4 · Add Category
+          </button>
+          <button
+            @click="state = 'edit-modal'; sortOpen = false; modalityOpen = false"
+            :class="state === 'edit-modal' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            5 · Edit Category
+          </button>
+          <button
+            @click="state = 'search'; sortOpen = false; modalityOpen = false"
+            :class="state === 'search' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            6 · Search
+          </button>
+          <button
+            @click="state = 'hidden-filter'; sortOpen = false; modalityOpen = false; visibilityFilter = 'hidden'"
+            :class="state === 'hidden-filter' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            7 · Hidden Filter
+          </button>
+        </div>
+      </div>
+
+      <!-- App shell -->
+      <div class="flex min-h-screen">
+        <!-- Sidebar nav -->
+        <aside
+          class="w-48 bg-slate-900 border-r border-slate-800 p-4 flex flex-col"
+        >
+          <h2 class="text-sm font-bold text-white mb-6">Acme Admin</h2>
+          <nav class="space-y-1 flex-1">
+            <a
+              href="#"
+              class="nav-item nav-item-inactive"
+            >
+              <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+              Dashboard
+            </a>
+            <a
+              href="#"
+              class="nav-item nav-item-inactive"
+            >
+              <i data-lucide="users" class="w-4 h-4"></i>
+              Users
+            </a>
+            <a
+              href="#"
+              class="nav-item nav-item-inactive"
+            >
+              <i data-lucide="image" class="w-4 h-4"></i>
+              Media
+            </a>
+            <a
+              href="#"
+              class="nav-item nav-item-inactive"
+            >
+              <i data-lucide="book-open" class="w-4 h-4"></i>
+              Catalog
+            </a>
+            <a
+              href="#"
+              class="nav-item nav-item-active"
+            >
+              <i data-lucide="cpu" class="w-4 h-4"></i>
+              AI Models
+            </a>
+          </nav>
+          <div class="border-t border-slate-800 pt-3 mt-3">
+            <p class="label px-3">admin@example.com</p>
+            <a
+              href="#"
+              class="flex items-center gap-2 px-3 py-2 text-muted hover:text-slate-200 mt-1"
+            >
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+              Sign Out
+            </a>
+          </div>
+        </aside>
+
+        <!-- Main content area -->
+        <main class="flex-1 flex">
+          <!-- Center column -->
+          <div class="flex-1 p-6 overflow-auto">
+            <!-- Page header -->
+            <div class="flex items-center justify-between mb-6">
+              <h1 class="text-xl font-bold text-white">AI Models</h1>
+              <button class="btn-outline">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Add Category
+              </button>
+            </div>
+
+            <!-- Categories table -->
+            <div class="card mb-8">
+              <div class="px-5 py-3 border-b border-slate-800">
+                <h2 class="text-sm font-semibold text-white">Categories</h2>
+              </div>
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-slate-800 text-slate-400">
+                    <th class="text-left px-5 py-2.5 font-medium w-28">
+                      Category
+                    </th>
+                    <th class="text-left px-5 py-2.5 font-medium">Model</th>
+                    <th class="text-left px-5 py-2.5 font-medium">
+                      Description
+                    </th>
+                    <th class="text-left px-5 py-2.5 font-medium w-28">
+                      Updated
+                    </th>
+                    <th class="text-left px-5 py-2.5 font-medium w-24">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    class="border-b border-slate-800/50 hover:bg-slate-800/40 cursor-pointer"
+                    :class="(state === 'category-current' || state === 'category-new' || state === 'search' || state === 'hidden-filter') ? 'bg-slate-800/60' : ''"
+                  >
+                    <td class="px-5 py-3">
+                      <span
+                        class="bg-slate-700 text-slate-200 text-xs font-medium px-2.5 py-1 rounded"
+                        >default</span
+                      >
+                    </td>
+                    <td class="px-5 py-3 font-mono text-xs text-slate-400">
+                      anthropic/claude-haiku-4.5
+                    </td>
+                    <td class="px-5 py-3 text-slate-300">
+                      General purpose model
+                    </td>
+                    <td class="px-5 py-3 text-muted">3/10/2026</td>
+                    <td class="px-5 py-3">
+                      <div class="flex items-center gap-2">
+                        <button
+                          class="text-slate-500 hover:text-blue-400"
+                          title="View assigned model details"
+                        >
+                          <i data-lucide="info" class="w-4 h-4"></i>
+                        </button>
+                        <button class="btn-icon">
+                          <i data-lucide="pencil" class="w-4 h-4"></i>
+                        </button>
+                        <button class="text-slate-500 hover:text-red-400">
+                          <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-slate-800/40 cursor-pointer">
+                    <td class="px-5 py-3">
+                      <span
+                        class="bg-slate-700 text-slate-200 text-xs font-medium px-2.5 py-1 rounded"
+                        >vision</span
+                      >
+                    </td>
+                    <td class="px-5 py-3 font-mono text-xs text-slate-400">
+                      x-ai/grok-4.1-fast
+                    </td>
+                    <td class="px-5 py-3 text-slate-300">
+                      Image understanding and analysis
+                    </td>
+                    <td class="px-5 py-3 text-muted">3/10/2026</td>
+                    <td class="px-5 py-3">
+                      <div class="flex items-center gap-2">
+                        <button
+                          class="text-slate-500 hover:text-blue-400"
+                          title="View assigned model details"
+                        >
+                          <i data-lucide="info" class="w-4 h-4"></i>
+                        </button>
+                        <button class="btn-icon">
+                          <i data-lucide="pencil" class="w-4 h-4"></i>
+                        </button>
+                        <button class="text-slate-500 hover:text-red-400">
+                          <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Model Catalog -->
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-semibold text-white">Model Catalog</h2>
+                <span class="text-faint">
+                  <span
+                    x-show="state === 'search'"
+                    >2 of 339 models</span
+                  >
+                  <span
+                    x-show="state === 'hidden-filter'"
+                    >3 of 339 models (3 hidden)</span
+                  >
+                  <span
+                    x-show="state !== 'search' && state !== 'hidden-filter'"
+                    >339 of 339 models</span
+                  >
+                </span>
+              </div>
+
+              <!-- Hint when no category selected -->
+              <p
+                x-show="state === 'default'"
+                class="text-sm text-slate-500 italic mb-3"
+              >
+                Select a category above to assign a model.
+              </p>
+
+              <!-- Search & filter bar -->
+              <div class="flex items-center gap-3 mb-4">
+                <div class="relative flex-1 max-w-sm">
+                  <i
+                    data-lucide="search"
+                    class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"
+                  ></i>
+                  <input
+                    type="text"
+                    placeholder="Search models..."
+                    class="input w-full pl-10 pr-9 focus:ring-1 focus:ring-slate-500"
+                    :value="state === 'search' ? 'immersive' : ''"
+                    readonly
+                  />
+                  <button
+                    x-show="state === 'search'"
+                    class="absolute right-2.5 top-1/2 -translate-y-1/2 btn-icon"
+                    title="Clear search"
+                  >
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                  </button>
+                </div>
+
+                <!-- Sort dropdown -->
+                <div class="relative">
+                  <button
+                    @click="sortOpen = !sortOpen; modalityOpen = false"
+                    class="select flex items-center gap-2"
+                  >
+                    Newest First
+                    <i data-lucide="chevron-down" class="w-3 h-3"></i>
+                  </button>
+                  <div
+                    x-show="sortOpen"
+                    @click.away="sortOpen = false"
+                    class="absolute top-full mt-1 left-0 w-44 bg-slate-800 border border-slate-700 rounded-md shadow-xl z-30 py-1"
+                  >
+                    <button
+                      class="w-full text-left px-3 py-2 text-sm text-slate-200 hover:bg-slate-700 flex items-center justify-between"
+                    >
+                      Newest First
+                      <i
+                        data-lucide="check"
+                        class="w-3 h-3 text-slate-400"
+                      ></i>
+                    </button>
+                    <button
+                      class="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-slate-700"
+                    >
+                      Name (A–Z)
+                    </button>
+                    <button
+                      class="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-slate-700"
+                    >
+                      Name (Z–A)
+                    </button>
+                    <button
+                      class="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-slate-700"
+                    >
+                      Price (low–high)
+                    </button>
+                    <button
+                      class="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-slate-700"
+                    >
+                      Price (high–low)
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Modality filter dropdown -->
+                <div class="relative">
+                  <button
+                    @click="modalityOpen = !modalityOpen; sortOpen = false"
+                    class="select flex items-center gap-2"
+                  >
+                    All Modalities
+                    <i data-lucide="chevron-down" class="w-3 h-3"></i>
+                  </button>
+                  <div
+                    x-show="modalityOpen"
+                    @click.away="modalityOpen = false"
+                    class="absolute top-full mt-1 left-0 w-44 bg-slate-800 border border-slate-700 rounded-md shadow-xl z-30 py-1"
+                  >
+                    <button
+                      class="w-full text-left px-3 py-2 text-sm text-slate-200 hover:bg-slate-700 flex items-center justify-between"
+                    >
+                      All Modalities
+                      <i
+                        data-lucide="check"
+                        class="w-3 h-3 text-slate-400"
+                      ></i>
+                    </button>
+                    <button
+                      class="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-slate-700"
+                    >
+                      Text Only
+                    </button>
+                    <button
+                      class="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-slate-700"
+                    >
+                      Multimodal In
+                    </button>
+                    <button
+                      class="w-full text-left px-3 py-2 text-sm text-slate-300 hover:bg-slate-700"
+                    >
+                      Multimodal Out
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Visibility filter (3-state toggle) -->
+                <div
+                  class="flex bg-slate-900 border border-slate-700 rounded-md overflow-hidden"
+                >
+                  <button
+                    class="p-2 hover:bg-slate-800"
+                    :class="(state !== 'hidden-filter') ? 'bg-slate-700 text-slate-200' : 'text-slate-500'"
+                    title="Show all models"
+                  >
+                    <i data-lucide="eye" class="w-4 h-4"></i>
+                  </button>
+                  <button
+                    class="p-2 hover:bg-slate-800 border-l border-r border-slate-700"
+                    :class="state === 'hidden-filter' ? 'bg-slate-700 text-slate-200' : 'text-slate-500'"
+                    title="Show hidden only"
+                  >
+                    <i data-lucide="eye-off" class="w-4 h-4"></i>
+                  </button>
+                  <button
+                    class="p-2 text-slate-500 hover:bg-slate-800"
+                    title="Show stacked"
+                  >
+                    <i data-lucide="layers" class="w-4 h-4"></i>
+                  </button>
+                </div>
+
+                <!-- Description search toggle -->
+                <button
+                  @click="descSearch = !descSearch"
+                  class="bg-slate-900 border border-slate-700 rounded-md p-2 hover:bg-slate-800"
+                  :class="descSearch ? 'text-blue-400 border-blue-500/50' : 'text-slate-400'"
+                  title="Include description in search"
+                >
+                  <i data-lucide="text" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Model table (flat structure for proper column alignment) -->
+              <div class="card">
+                <table class="w-full text-sm table-fixed">
+                  <colgroup>
+                    <col style="width: 38%" />
+                    <col style="width: 10%" />
+                    <col style="width: 22%" />
+                    <col style="width: 20%" />
+                    <col style="width: 10%" />
+                  </colgroup>
+                  <thead>
+                    <tr class="border-b border-slate-800 text-slate-400">
+                      <th class="text-left px-5 py-2.5 font-medium">Name</th>
+                      <th class="text-left px-5 py-2.5 font-medium">
+                        Context
+                      </th>
+                      <th class="text-left px-5 py-2.5 font-medium">
+                        Pricing / 1M
+                      </th>
+                      <th class="text-left px-5 py-2.5 font-medium">Input</th>
+                      <th class="text-center px-5 py-2.5 font-medium">Hide</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Full model list rows (shown in non-search states) -->
+                    <tr
+                      x-show="state !== 'search' && state !== 'hidden-filter'"
+                      class="border-b border-slate-800/50 hover:bg-slate-800/40 cursor-pointer"
+                      :class="state === 'category-new' ? 'bg-slate-800/60' : ''"
+                    >
+                      <td class="px-5 py-3">
+                        <div class="text-slate-200 font-medium">
+                          ByteDance Seed: Seed-2.0-Lite
+                        </div>
+                        <div class="text-faint font-mono mt-0.5">
+                          bytedance-seed/seed-2.0-lite
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-muted">262K</td>
+                      <td class="px-5 py-3 text-muted">
+                        In: $0.25 &nbsp; Out: $2
+                      </td>
+                      <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                          <span title="Text input">T</span>
+                          <i
+                            data-lucide="image"
+                            class="w-3.5 h-3.5"
+                            title="Image input"
+                          ></i>
+                          <span class="text-slate-600 mx-0.5">→</span>
+                          <span title="Text output">T</span>
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-center">
+                        <button
+                          class="btn-icon"
+                          title="Hide model"
+                        >
+                          <i data-lucide="eye-off" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      x-show="state !== 'search' && state !== 'hidden-filter'"
+                      class="border-b border-slate-800/50 hover:bg-slate-800/40 cursor-pointer"
+                    >
+                      <td class="px-5 py-3">
+                        <div class="text-slate-200 font-medium">
+                          Qwen: Qwen3.5-9B
+                        </div>
+                        <div class="text-faint font-mono mt-0.5">
+                          qwen/qwen3.5-9b
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-muted">262K</td>
+                      <td class="px-5 py-3 text-muted">
+                        In: $0.1 &nbsp; Out: $0.15
+                      </td>
+                      <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                          <span title="Text input">T</span>
+                          <i
+                            data-lucide="image"
+                            class="w-3.5 h-3.5"
+                            title="Image input"
+                          ></i>
+                          <span class="text-slate-600 mx-0.5">→</span>
+                          <span title="Text output">T</span>
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-center">
+                        <button
+                          class="btn-icon"
+                          title="Hide model"
+                        >
+                          <i data-lucide="eye-off" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      x-show="state !== 'search' && state !== 'hidden-filter'"
+                      class="border-b border-slate-800/50 hover:bg-slate-800/40 cursor-pointer"
+                    >
+                      <td class="px-5 py-3">
+                        <div class="text-slate-200 font-medium">
+                          OpenAI: GPT-5.4 Pro
+                        </div>
+                        <div class="text-faint font-mono mt-0.5">
+                          openai/gpt-5.4-pro
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-muted">1M</td>
+                      <td class="px-5 py-3 text-muted">
+                        In: $30 &nbsp; Out: $180
+                      </td>
+                      <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                          <span title="Text input">T</span>
+                          <i
+                            data-lucide="image"
+                            class="w-3.5 h-3.5"
+                            title="Image input"
+                          ></i>
+                          <i
+                            data-lucide="file-text"
+                            class="w-3.5 h-3.5"
+                            title="File input"
+                          ></i>
+                          <span class="text-slate-600 mx-0.5">→</span>
+                          <span title="Text output">T</span>
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-center">
+                        <button
+                          class="btn-icon"
+                          title="Hide model"
+                        >
+                          <i data-lucide="eye-off" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      x-show="state !== 'search' && state !== 'hidden-filter'"
+                      class="border-b border-slate-800/50 hover:bg-slate-800/40 cursor-pointer"
+                    >
+                      <td class="px-5 py-3">
+                        <div class="text-slate-200 font-medium">
+                          OpenAI: GPT-5.4
+                        </div>
+                        <div class="text-faint font-mono mt-0.5">
+                          openai/gpt-5.4
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-muted">1M</td>
+                      <td class="px-5 py-3 text-muted">
+                        In: $2.5 &nbsp; Out: $15
+                      </td>
+                      <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                          <span title="Text input">T</span>
+                          <i
+                            data-lucide="image"
+                            class="w-3.5 h-3.5"
+                            title="Image input"
+                          ></i>
+                          <i
+                            data-lucide="file-text"
+                            class="w-3.5 h-3.5"
+                            title="File input"
+                          ></i>
+                          <span class="text-slate-600 mx-0.5">→</span>
+                          <span title="Text output">T</span>
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-center">
+                        <button
+                          class="btn-icon"
+                          title="Hide model"
+                        >
+                          <i data-lucide="eye-off" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      x-show="state !== 'search' && state !== 'hidden-filter'"
+                      class="border-b border-slate-800/50 hover:bg-slate-800/40 cursor-pointer"
+                    >
+                      <td class="px-5 py-3">
+                        <div class="text-slate-200 font-medium">
+                          Inception: Mercury 2
+                        </div>
+                        <div class="text-faint font-mono mt-0.5">
+                          inception/mercury-2
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-muted">128K</td>
+                      <td class="px-5 py-3 text-muted">
+                        In: $0.25 &nbsp; Out: $0.75
+                      </td>
+                      <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                          <span title="Text input">T</span>
+                          <span class="text-slate-600 mx-0.5">→</span>
+                          <span title="Text output">T</span>
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-center">
+                        <button
+                          class="btn-icon"
+                          title="Hide model"
+                        >
+                          <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      x-show="state !== 'search' && state !== 'hidden-filter'"
+                      class="border-b border-slate-800/50 hover:bg-slate-800/40 cursor-pointer"
+                    >
+                      <td class="px-5 py-3">
+                        <div class="text-slate-200 font-medium">
+                          OpenAI: GPT-5.3 Chat
+                        </div>
+                        <div class="text-faint font-mono mt-0.5">
+                          openai/gpt-5.3-chat
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-muted">128K</td>
+                      <td class="px-5 py-3 text-muted">
+                        In: $1.75 &nbsp; Out: $14
+                      </td>
+                      <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                          <span title="Text input">T</span>
+                          <i
+                            data-lucide="image"
+                            class="w-3.5 h-3.5"
+                            title="Image input"
+                          ></i>
+                          <span class="text-slate-600 mx-0.5">→</span>
+                          <span title="Text output">T</span>
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-center">
+                        <button
+                          class="btn-icon"
+                          title="Hide model"
+                        >
+                          <i data-lucide="eye-off" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      x-show="state !== 'search' && state !== 'hidden-filter'"
+                      class="border-b border-slate-800/50 hover:bg-slate-800/40 cursor-pointer"
+                    >
+                      <td class="px-5 py-3">
+                        <div class="text-slate-200 font-medium">
+                          Google: Gemini 3.1 Flash Lite Preview
+                        </div>
+                        <div class="text-faint font-mono mt-0.5">
+                          google/gemini-3.1-flash-lite-preview
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-muted">1M</td>
+                      <td class="px-5 py-3 text-muted">
+                        In: $0.25 &nbsp; Out: $1.5
+                      </td>
+                      <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                          <span title="Text input">T</span>
+                          <i
+                            data-lucide="image"
+                            class="w-3.5 h-3.5"
+                            title="Image input"
+                          ></i>
+                          <span class="text-slate-600 mx-0.5">→</span>
+                          <span title="Text output">T</span>
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-center">
+                        <button
+                          class="btn-icon"
+                          title="Hide model"
+                        >
+                          <i data-lucide="eye-off" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      x-show="state !== 'search' && state !== 'hidden-filter'"
+                      class="hover:bg-slate-800/40 cursor-pointer"
+                    >
+                      <td class="px-5 py-3">
+                        <div class="text-slate-200 font-medium">
+                          ByteDance Seed: Seed-2.0-Mini
+                        </div>
+                        <div class="text-faint font-mono mt-0.5">
+                          bytedance-seed/seed-2.0-mini
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-muted">262K</td>
+                      <td class="px-5 py-3 text-muted">
+                        In: $0.1 &nbsp; Out: $0.4
+                      </td>
+                      <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                          <span title="Text input">T</span>
+                          <i
+                            data-lucide="image"
+                            class="w-3.5 h-3.5"
+                            title="Image input"
+                          ></i>
+                          <span class="text-slate-600 mx-0.5">→</span>
+                          <span title="Text output">T</span>
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-center">
+                        <button
+                          class="btn-icon"
+                          title="Hide model"
+                        >
+                          <i data-lucide="eye-off" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+
+                    <!-- Search results (shown in search state) -->
+                    <tr
+                      x-show="state === 'search'"
+                      class="border-b border-slate-800/50 hover:bg-slate-800/40 cursor-pointer"
+                    >
+                      <td class="px-5 py-3">
+                        <div class="text-slate-200 font-medium">
+                          AionLabs: Aion-2.0
+                        </div>
+                        <div class="text-faint font-mono mt-0.5">
+                          aion-labs/aion-2.0
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-muted">131K</td>
+                      <td class="px-5 py-3 text-muted">
+                        In: $0.8 &nbsp; Out: $1.6
+                      </td>
+                      <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                          <span title="Text input">T</span>
+                          <span class="text-slate-600 mx-0.5">→</span>
+                          <span title="Text output">T</span>
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-center">
+                        <button
+                          class="btn-icon"
+                          title="Hide model"
+                        >
+                          <i data-lucide="eye-off" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      x-show="state === 'search'"
+                      class="hover:bg-slate-800/40 cursor-pointer"
+                    >
+                      <td class="px-5 py-3">
+                        <div class="text-slate-200 font-medium">
+                          MiniMax: MiniMax M2-her
+                        </div>
+                        <div class="text-faint font-mono mt-0.5">
+                          minimax/minimax-m2-her
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-muted">66K</td>
+                      <td class="px-5 py-3 text-muted">
+                        In: $0.3 &nbsp; Out: $1.2
+                      </td>
+                      <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 text-slate-500">
+                          <span title="Text input">T</span>
+                          <span class="text-slate-600 mx-0.5">→</span>
+                          <span title="Text output">T</span>
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-center">
+                        <button
+                          class="btn-icon"
+                          title="Hide model"
+                        >
+                          <i data-lucide="eye-off" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+
+                    <!-- Hidden filter results (dimmed rows showing hidden models) -->
+                    <tr
+                      x-show="state === 'hidden-filter'"
+                      class="border-b border-slate-800/50 hover:bg-slate-800/40 cursor-pointer opacity-60"
+                    >
+                      <td class="px-5 py-3">
+                        <div class="text-slate-400 font-medium">
+                          ByteDance Seed: Seed-2.0-Lite
+                        </div>
+                        <div class="text-mono mt-0.5">
+                          bytedance-seed/seed-2.0-lite
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-slate-500">262K</td>
+                      <td class="px-5 py-3 text-slate-500">
+                        In: $0.25 &nbsp; Out: $2
+                      </td>
+                      <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 text-slate-600">
+                          <span>T</span>
+                          <i
+                            data-lucide="image"
+                            class="w-3.5 h-3.5"
+                          ></i>
+                          <span class="mx-0.5">→</span>
+                          <span>T</span>
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-center">
+                        <button class="text-slate-400 hover:text-slate-200">
+                          <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      x-show="state === 'hidden-filter'"
+                      class="border-b border-slate-800/50 hover:bg-slate-800/40 cursor-pointer opacity-60"
+                    >
+                      <td class="px-5 py-3">
+                        <div class="text-slate-400 font-medium">
+                          OpenAI: GPT-5.4 Pro
+                        </div>
+                        <div class="text-mono mt-0.5">
+                          openai/gpt-5.4-pro
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-slate-500">1M</td>
+                      <td class="px-5 py-3 text-slate-500">
+                        In: $30 &nbsp; Out: $180
+                      </td>
+                      <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 text-slate-600">
+                          <span>T</span>
+                          <i
+                            data-lucide="image"
+                            class="w-3.5 h-3.5"
+                          ></i>
+                          <i
+                            data-lucide="file-text"
+                            class="w-3.5 h-3.5"
+                          ></i>
+                          <span class="mx-0.5">→</span>
+                          <span>T</span>
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-center">
+                        <button class="text-slate-400 hover:text-slate-200">
+                          <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      x-show="state === 'hidden-filter'"
+                      class="hover:bg-slate-800/40 cursor-pointer opacity-60"
+                    >
+                      <td class="px-5 py-3">
+                        <div class="text-slate-400 font-medium">
+                          Inception: Mercury 2
+                        </div>
+                        <div class="text-mono mt-0.5">
+                          inception/mercury-2
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-slate-500">128K</td>
+                      <td class="px-5 py-3 text-slate-500">
+                        In: $0.25 &nbsp; Out: $0.75
+                      </td>
+                      <td class="px-5 py-3">
+                        <div class="flex items-center gap-1.5 text-slate-600">
+                          <span>T</span>
+                          <span class="mx-0.5">→</span>
+                          <span>T</span>
+                        </div>
+                      </td>
+                      <td class="px-5 py-3 text-center">
+                        <button class="text-slate-400 hover:text-slate-200">
+                          <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right detail pane (sticky) -->
+          <aside
+            class="w-72 border-l border-slate-800 bg-slate-900 p-5 sticky top-10 self-start h-[calc(100vh-2.5rem)] overflow-auto"
+          >
+            <!-- Empty state -->
+            <div
+              x-show="state === 'default' || state === 'add-modal' || state === 'edit-modal'"
+            >
+              <h3 class="text-sm font-semibold text-white mb-3">
+                Model Details
+              </h3>
+              <p class="text-sm text-slate-500">
+                Select a model from the catalog to view details.
+              </p>
+            </div>
+
+            <!-- Current model (viewing assigned model via info icon) -->
+            <div x-show="state === 'category-current'">
+              <h3 class="text-sm font-semibold text-white mb-3">
+                Model Details
+              </h3>
+              <p class="text-base font-semibold text-white">
+                xAI: Grok 4.1 Fast
+              </p>
+              <div class="flex items-center gap-1.5 mt-1">
+                <span class="text-xs font-mono text-slate-400"
+                  >x-ai/grok-4.1-fast</span
+                >
+                <button class="btn-icon">
+                  <i data-lucide="copy" class="w-3 h-3"></i>
+                </button>
+              </div>
+
+              <p class="text-muted mt-3 leading-relaxed">
+                Grok 4.1 Fast is xAI's best agentic tool calling model that
+                shines in real-world use cases like customer support and deep
+                research. 2M context window. Reasoning can be enabled/disabled
+                using the "reasoning" parameter in the API.
+              </p>
+
+              <div class="flex items-center justify-between mt-4">
+                <span class="label uppercase tracking-wide"
+                  >Context window</span
+                >
+                <span class="text-sm text-slate-200">2M tokens</span>
+              </div>
+
+              <div class="border-t border-slate-800 mt-4 pt-4">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="label uppercase tracking-wide"
+                    >Pricing</span
+                  >
+                  <div
+                    class="flex bg-slate-800 rounded-md overflow-hidden text-xs"
+                  >
+                    <button
+                      class="px-2 py-1 bg-slate-700 text-slate-200 font-medium"
+                    >
+                      /1M
+                    </button>
+                    <button class="px-2 py-1 text-slate-400">/token</button>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-sm mb-1.5">
+                  <span class="text-slate-400">Input</span>
+                  <span class="text-slate-200">$0.2</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-slate-400">Output</span>
+                  <span class="text-slate-200">$0.5</span>
+                </div>
+              </div>
+
+              <div class="border-t border-slate-800 mt-4 pt-4">
+                <span class="label uppercase tracking-wide"
+                  >Modalities</span
+                >
+                <div class="flex items-center gap-2 mt-2 text-slate-400">
+                  <span title="Text">T</span>
+                  <i
+                    data-lucide="image"
+                    class="w-4 h-4"
+                    title="Image"
+                  ></i>
+                  <span class="text-slate-600">→</span>
+                  <span title="Text">T</span>
+                </div>
+              </div>
+
+              <div class="border-t border-slate-800 mt-4 pt-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="label">Assign to:</span>
+                  <span
+                    class="bg-slate-700 text-slate-200 text-xs font-medium px-2 py-0.5 rounded"
+                    >vision</span
+                  >
+                </div>
+                <div
+                  class="text-center text-sm text-slate-500 py-2 border border-slate-700 rounded-md"
+                >
+                  Currently assigned
+                </div>
+              </div>
+            </div>
+
+            <!-- New model selected (browsing a different model) -->
+            <div
+              x-show="state === 'category-new' || state === 'search' || state === 'hidden-filter'"
+            >
+              <h3 class="text-sm font-semibold text-white mb-3">
+                Model Details
+              </h3>
+              <p class="text-base font-semibold text-white">
+                ByteDance Seed: Seed-2.0-Lite
+              </p>
+              <div class="flex items-center gap-1.5 mt-1">
+                <span class="text-xs font-mono text-slate-400"
+                  >bytedance-seed/seed-2.0-lite</span
+                >
+                <button class="btn-icon">
+                  <i data-lucide="copy" class="w-3 h-3"></i>
+                </button>
+              </div>
+
+              <p class="text-muted mt-3 leading-relaxed">
+                Seed-2.0-Lite is a balanced model designed for high-frequency
+                enterprise workloads, optimizing for both capability and cost.
+                Its overall performance surpasses the previous-generation
+                Seed-1.8. It is well-suited for production tasks such as
+                unstructured information processing, text content creation,
+                search and recommendation, and data analysis.
+              </p>
+
+              <div class="flex items-center justify-between mt-4">
+                <span class="label uppercase tracking-wide"
+                  >Context window</span
+                >
+                <span class="text-sm text-slate-200">262K tokens</span>
+              </div>
+
+              <div class="border-t border-slate-800 mt-4 pt-4">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="label uppercase tracking-wide"
+                    >Pricing</span
+                  >
+                  <div
+                    class="flex bg-slate-800 rounded-md overflow-hidden text-xs"
+                  >
+                    <button
+                      class="px-2 py-1 bg-slate-700 text-slate-200 font-medium"
+                    >
+                      /1M
+                    </button>
+                    <button class="px-2 py-1 text-slate-400">/token</button>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-sm mb-1.5">
+                  <span class="text-slate-400">Input</span>
+                  <span class="text-slate-200">$0.25</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-slate-400">Output</span>
+                  <span class="text-slate-200">$2</span>
+                </div>
+              </div>
+
+              <div class="border-t border-slate-800 mt-4 pt-4">
+                <span class="label uppercase tracking-wide"
+                  >Modalities</span
+                >
+                <div class="flex items-center gap-2 mt-2 text-slate-400">
+                  <span title="Text">T</span>
+                  <i
+                    data-lucide="image"
+                    class="w-4 h-4"
+                    title="Image"
+                  ></i>
+                  <span class="text-slate-600">→</span>
+                  <span title="Text">T</span>
+                </div>
+              </div>
+
+              <div class="border-t border-slate-800 mt-4 pt-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="label">Assign to:</span>
+                  <span
+                    class="bg-slate-700 text-slate-200 text-xs font-medium px-2 py-0.5 rounded"
+                    >default</span
+                  >
+                </div>
+                <button
+                  class="w-full text-sm font-medium text-slate-900 bg-slate-100 hover:bg-white py-2 rounded-md"
+                >
+                  Select This Model
+                </button>
+              </div>
+            </div>
+          </aside>
+        </main>
+      </div>
+
+      <!-- Add Category Modal -->
+      <div
+        x-show="state === 'add-modal'"
+        class="fixed inset-0 bg-black/60 flex items-center justify-center z-40"
+      >
+        <div
+          class="bg-slate-900 border border-slate-700 rounded-lg shadow-2xl w-full max-w-md p-6"
+        >
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-semibold text-white">Add Category</h3>
+            <button class="text-slate-400 hover:text-slate-200">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <p class="text-muted mb-5">
+            Choose a semantic name for this model category (e.g. vision,
+            narration).
+          </p>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-slate-300 mb-1.5"
+              >Category name</label
+            >
+            <input
+              type="text"
+              placeholder="e.g. vision, narration, fast"
+              class="input w-full focus:ring-1 focus:ring-slate-400"
+              readonly
+            />
+            <p class="label mt-1.5">
+              Lowercase letters, numbers, and hyphens only.
+            </p>
+          </div>
+          <!-- Pre-selected model (shown when a model was selected before opening the dialog) -->
+          <div
+            class="mb-5 bg-slate-800/60 border border-slate-700 rounded-md px-3 py-2.5"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="section-title"
+                  >Model</span
+                >
+                <p class="text-sm text-slate-200 font-medium mt-0.5">
+                  ByteDance Seed: Seed-2.0-Lite
+                </p>
+                <p class="text-faint font-mono">
+                  bytedance-seed/seed-2.0-lite
+                </p>
+              </div>
+              <button
+                class="label hover:text-slate-300"
+                title="Clear model selection"
+              >
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+          <div class="flex justify-end gap-3">
+            <button class="btn-outline">
+              Cancel
+            </button>
+            <button
+              class="px-4 py-2 text-sm text-white bg-slate-600 border border-slate-500 rounded-md hover:bg-slate-500"
+            >
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Category Modal -->
+      <div
+        x-show="state === 'edit-modal'"
+        class="fixed inset-0 bg-black/60 flex items-center justify-center z-40"
+      >
+        <div
+          class="bg-slate-900 border border-slate-700 rounded-lg shadow-2xl w-full max-w-md p-6"
+        >
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-semibold text-white">Edit Category</h3>
+            <button class="text-slate-400 hover:text-slate-200">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <p class="text-muted mb-5">
+            Update the description for
+            <span
+              class="bg-slate-700 text-slate-200 text-xs font-medium px-2 py-0.5 rounded"
+              >default</span
+            >
+          </p>
+          <div class="mb-5">
+            <label class="block text-sm font-medium text-slate-300 mb-1.5"
+              >Description</label
+            >
+            <textarea
+              rows="3"
+              class="input w-full resize-none focus:ring-1 focus:ring-slate-400"
+              readonly
+            >General purpose model</textarea
+            >
+          </div>
+          <div class="flex justify-end gap-3">
+            <button class="btn-outline">
+              Cancel
+            </button>
+            <button
+              class="px-4 py-2 text-sm text-white bg-slate-600 border border-slate-500 rounded-md hover:bg-slate-500"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Initialize Lucide icons with Alpine-aware refresh -->
+    <script>
+      lucide.createIcons();
+      document.addEventListener("alpine:initialized", () => {
+        let pending = false;
+        const observer = new MutationObserver(() => {
+          if (pending) return;
+          pending = true;
+          requestAnimationFrame(() => {
+            lucide.createIcons();
+            pending = false;
+          });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+      });
+    </script>
+  </body>
+</html>

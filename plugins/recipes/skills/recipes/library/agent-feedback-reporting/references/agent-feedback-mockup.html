@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mockup — Agent Feedback Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
+
+    <!--
+      ============================================================
+      THEME
+      Semantic classes built on Tailwind utilities via @apply.
+      Change the color palette or spacing here; the markup below
+      stays readable and consistent.
+      ============================================================
+    -->
+    <style type="text/tailwindcss">
+      /* ---- Base ---- */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* ---- Typography ---- */
+      .page-title {
+        @apply text-2xl font-bold text-white;
+      }
+      .section-title {
+        @apply text-xs font-semibold text-slate-400 uppercase tracking-wide;
+      }
+      .label {
+        @apply text-xs text-slate-500;
+      }
+      .text-body {
+        @apply text-sm text-slate-200 leading-relaxed;
+      }
+      .text-muted {
+        @apply text-sm text-slate-400;
+      }
+      .text-faint {
+        @apply text-xs text-slate-500;
+      }
+      .text-mono {
+        @apply text-xs text-slate-600 font-mono;
+      }
+      .link {
+        @apply text-sm text-blue-400 hover:text-blue-300 transition-colors;
+      }
+
+      /* ---- Surfaces ---- */
+      .card {
+        @apply bg-slate-900 border border-slate-800 rounded-lg overflow-hidden;
+      }
+      .inset {
+        @apply bg-slate-950 border border-slate-800 rounded-md;
+      }
+      .panel-section {
+        @apply px-5 py-4 border-b border-slate-800;
+      }
+
+      /* ---- Badges ---- */
+      .badge {
+        @apply text-xs px-2 py-0.5 rounded border font-medium;
+      }
+      .badge-accent {
+        @apply badge bg-blue-500/10 text-blue-300 border-blue-500/20;
+      }
+      .badge-muted {
+        @apply badge bg-slate-700/50 text-slate-300 border-slate-600;
+      }
+      .badge-warning {
+        @apply badge bg-amber-500/20 text-amber-400 border-amber-500/30;
+      }
+
+      /* ---- Status indicators ---- */
+      .status-dot {
+        @apply w-2 h-2 rounded-full shrink-0;
+      }
+      .status-dot-open {
+        @apply status-dot bg-amber-400;
+      }
+      .status-dot-success {
+        @apply status-dot bg-emerald-400;
+      }
+
+      /* ---- Buttons ---- */
+      .btn {
+        @apply text-sm px-4 py-2 rounded-md font-medium transition-colors
+               flex items-center justify-center gap-2;
+      }
+      .btn-primary {
+        @apply btn bg-emerald-600 text-white hover:bg-emerald-500;
+      }
+      .btn-outline {
+        @apply btn border border-slate-700 text-slate-300 hover:bg-slate-800;
+      }
+      .btn-ghost {
+        @apply text-xs px-3 py-2 rounded-md border border-slate-800
+               text-slate-500 hover:text-slate-300 hover:border-slate-700
+               transition-colors flex items-center justify-center gap-2;
+      }
+      .btn-icon {
+        @apply text-slate-500 hover:text-white transition-colors;
+      }
+      .btn-toggle {
+        @apply flex items-center gap-2 text-sm px-3 py-2 rounded-md border
+               transition-colors whitespace-nowrap;
+      }
+
+      /* ---- Form controls ---- */
+      .input {
+        @apply bg-slate-900 border border-slate-700 text-sm text-white
+               px-3 py-2 rounded-md placeholder-slate-500
+               focus:outline-none focus:border-slate-500;
+      }
+      .select {
+        @apply input cursor-pointer text-slate-300;
+      }
+      .textarea {
+        @apply w-full bg-slate-950 border border-slate-800 text-sm text-white
+               px-3 py-2 rounded-md placeholder-slate-600
+               focus:outline-none focus:border-slate-600 resize-none;
+      }
+
+      /* ---- Filter pill ---- */
+      .filter-pill {
+        @apply inline-flex items-center gap-1 text-xs bg-slate-800
+               text-slate-300 border border-slate-700 px-2 py-0.5 rounded;
+      }
+
+      /* ---- Navigation ---- */
+      .nav-item {
+        @apply w-full flex items-center gap-3 px-3 py-2 rounded-md
+               text-sm font-medium transition-colors;
+      }
+      .nav-item-active {
+        @apply bg-slate-800 text-white;
+      }
+      .nav-item-inactive {
+        @apply text-slate-400 hover:text-white hover:bg-slate-800/50;
+      }
+    </style>
+
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.data("feedbackApp", () => ({
+          state: "default",
+          page: "feedback",
+          selectedEntry: null,
+          showArchived: false,
+          searchQuery: "",
+          agentFilter: "",
+          categoryFilter: "",
+          entries: [
+            {
+              id: "fb-001",
+              entityId: "ent-4a2f",
+              entityTitle: "Monthly Report — Q1 2026",
+              agentId: "content-writer",
+              stepName: "write-content-step",
+              modelId: "claude-sonnet-4-20250514",
+              feedback:
+                'The style guide references a "brand tone" document that was not included in the prompt context. I proceeded with a neutral professional tone, but the output may not match the intended voice. Including the brand tone document or a summary of key voice attributes would improve consistency.',
+              category: "missing-context",
+              status: "open",
+              archived: false,
+              adminNotes: null,
+              addressedAt: null,
+              createdAt: "2026-03-10",
+              agentInput:
+                "Write section 3 of the monthly report covering Q1 revenue trends. Follow the style guide for formatting and tone. Include year-over-year comparisons where data is available.",
+            },
+            {
+              id: "fb-002",
+              entityId: "ent-7b3e",
+              entityTitle: "User Dashboard Feature",
+              agentId: "code-reviewer",
+              stepName: "review-pr-step",
+              modelId: "claude-sonnet-4-20250514",
+              feedback:
+                "The PR diff includes references to a shared utility function formatCurrency() that is not shown in the diff context. I cannot verify whether the function handles edge cases (negative values, zero) correctly. Expanding the diff context window or including referenced files would allow more thorough review.",
+              category: "incomplete-context",
+              status: "open",
+              archived: false,
+              adminNotes: null,
+              addressedAt: null,
+              createdAt: "2026-03-09",
+              agentInput:
+                "Review the following pull request for correctness, edge cases, and adherence to project conventions...",
+            },
+            {
+              id: "fb-003",
+              entityId: "ent-1c8d",
+              entityTitle: "API Migration — v2 to v3",
+              agentId: "content-writer",
+              stepName: "write-content-step",
+              modelId: "gpt-4o-2024-11-20",
+              feedback:
+                'The instructions say to "update all endpoints" but the migration guide only covers 4 of the 11 endpoints listed in the API spec. I documented the 4 covered endpoints and flagged the remaining 7 as needing manual review. Clarifying which endpoints are in scope would prevent this ambiguity.',
+              category: "unclear-instructions",
+              status: "addressed",
+              archived: false,
+              adminNotes:
+                "Updated the migration prompt to explicitly list in-scope endpoints. Verified the remaining 7 are handled by a separate migration task.",
+              addressedAt: "2026-03-09",
+              createdAt: "2026-03-08",
+              agentInput:
+                "Write the migration guide for transitioning from API v2 to v3. Update all endpoints to use the new authentication scheme and response format...",
+            },
+            {
+              id: "fb-004",
+              entityId: "ent-9f2a",
+              entityTitle: "Onboarding Flow Redesign",
+              agentId: "code-reviewer",
+              stepName: "review-pr-step",
+              modelId: "claude-sonnet-4-20250514",
+              feedback:
+                "Multiple test files reference mock data from a __fixtures__ directory that is not included in the review context. Cannot assess whether tests are using realistic data or if mock data is outdated.",
+              category: "incomplete-context",
+              status: "open",
+              archived: false,
+              adminNotes: null,
+              addressedAt: null,
+              createdAt: "2026-03-07",
+              agentInput:
+                "Review the onboarding flow refactor PR for correctness and test coverage...",
+            },
+            {
+              id: "fb-005",
+              entityId: null,
+              entityTitle: null,
+              agentId: "data-processor",
+              stepName: "transform-step",
+              modelId: "claude-sonnet-4-20250514",
+              feedback:
+                "The CSV input contains malformed rows (missing delimiters on rows 47, 112, and 203). The instructions do not specify how to handle malformed input — skip, error, or attempt repair. I skipped the malformed rows and logged them. A fallback strategy in the instructions would prevent silent data loss.",
+              category: "unclear-instructions",
+              status: "open",
+              archived: false,
+              adminNotes: null,
+              addressedAt: null,
+              createdAt: "2026-03-06",
+              agentInput:
+                "Process the uploaded CSV file. Transform columns A-D into the normalized schema and output as JSON...",
+            },
+          ],
+          archivedEntries: [
+            {
+              id: "fb-006",
+              entityId: "ent-3d1f",
+              entityTitle: "Weekly Digest — Feb 28",
+              agentId: "content-writer",
+              stepName: "write-content-step",
+              modelId: "gpt-4o-2024-11-20",
+              feedback:
+                "Duplicate feedback from a known issue with the digest template. Already addressed in fb-001.",
+              category: "missing-context",
+              status: "addressed",
+              archived: true,
+              adminNotes: "Duplicate of fb-001. Archived.",
+              addressedAt: "2026-03-02",
+              createdAt: "2026-03-01",
+              agentInput:
+                "Write the weekly digest summarizing key updates...",
+            },
+          ],
+          get visibleEntries() {
+            let list = this.showArchived
+              ? this.archivedEntries
+              : this.entries;
+            if (this.searchQuery) {
+              const q = this.searchQuery.toLowerCase();
+              list = list.filter(
+                (e) =>
+                  e.feedback.toLowerCase().includes(q) ||
+                  (e.entityTitle &&
+                    e.entityTitle.toLowerCase().includes(q)) ||
+                  e.agentId.toLowerCase().includes(q) ||
+                  (e.category && e.category.toLowerCase().includes(q))
+              );
+            }
+            if (this.agentFilter) {
+              list = list.filter((e) => e.agentId === this.agentFilter);
+            }
+            if (this.categoryFilter) {
+              list = list.filter(
+                (e) => e.category === this.categoryFilter
+              );
+            }
+            return list;
+          },
+          get uniqueAgents() {
+            const list = this.showArchived
+              ? this.archivedEntries
+              : this.entries;
+            return [...new Set(list.map((e) => e.agentId))].sort();
+          },
+          get uniqueCategories() {
+            const list = this.showArchived
+              ? this.archivedEntries
+              : this.entries;
+            return [
+              ...new Set(list.map((e) => e.category).filter(Boolean)),
+            ].sort();
+          },
+          get openCount() {
+            return this.entries.filter((e) => e.status === "open").length;
+          },
+          get addressedCount() {
+            return this.entries.filter((e) => e.status === "addressed")
+              .length;
+          },
+          selectEntry(entry) {
+            this.selectedEntry = entry;
+          },
+          clearFilters() {
+            this.searchQuery = "";
+            this.agentFilter = "";
+            this.categoryFilter = "";
+          },
+          markAddressed(notes) {
+            if (this.selectedEntry) {
+              this.selectedEntry.status = "addressed";
+              this.selectedEntry.adminNotes = notes || null;
+              this.selectedEntry.addressedAt = "2026-03-11";
+            }
+          },
+          reopenEntry() {
+            if (this.selectedEntry) {
+              this.selectedEntry.status = "open";
+              this.selectedEntry.adminNotes = null;
+              this.selectedEntry.addressedAt = null;
+            }
+          },
+          archiveEntry() {
+            if (this.selectedEntry) {
+              this.selectedEntry.archived = true;
+              const idx = this.entries.indexOf(this.selectedEntry);
+              if (idx > -1) {
+                this.archivedEntries.push(this.entries.splice(idx, 1)[0]);
+              }
+              this.selectedEntry = null;
+            }
+          },
+          navigate(p) {
+            this.page = p;
+            this.selectedEntry = null;
+            this.searchQuery = "";
+            this.agentFilter = "";
+            this.categoryFilter = "";
+          },
+        }));
+      });
+    </script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+  </head>
+  <body class="bg-slate-950 text-slate-200 min-h-screen">
+    <div x-data="feedbackApp">
+      <!-- State switcher -->
+      <div
+        class="bg-amber-950/60 border-b border-amber-800/40 px-6 py-2 flex items-center gap-3 sticky top-0 z-50"
+      >
+        <span class="section-title text-amber-500">Prototype state</span>
+        <div class="flex gap-2 flex-wrap">
+          <button
+            @click="state = 'default'; page = 'feedback'; selectedEntry = null; showArchived = false; clearFilters();"
+            :class="state === 'default' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            1 · Feedback List
+          </button>
+          <button
+            @click="state = 'selected-open'; page = 'feedback'; showArchived = false; clearFilters(); selectEntry(entries[0]);"
+            :class="state === 'selected-open' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            2 · Selected (Open)
+          </button>
+          <button
+            @click="state = 'selected-addressed'; page = 'feedback'; showArchived = false; clearFilters(); selectEntry(entries[2]);"
+            :class="state === 'selected-addressed' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            3 · Selected (Addressed)
+          </button>
+          <button
+            @click="state = 'search'; page = 'feedback'; selectedEntry = null; showArchived = false; agentFilter = ''; categoryFilter = ''; searchQuery = 'context';"
+            :class="state === 'search' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            4 · Search
+          </button>
+          <button
+            @click="state = 'filtered'; page = 'feedback'; selectedEntry = null; showArchived = false; searchQuery = ''; categoryFilter = ''; agentFilter = 'code-reviewer';"
+            :class="state === 'filtered' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            5 · Filtered
+          </button>
+          <button
+            @click="state = 'archived'; page = 'feedback'; selectedEntry = null; showArchived = true; clearFilters();"
+            :class="state === 'archived' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            6 · Archived
+          </button>
+        </div>
+      </div>
+
+      <div class="flex min-h-screen">
+        <!-- Sidebar Nav -->
+        <aside
+          class="w-56 border-r border-slate-800 flex flex-col justify-between shrink-0"
+        >
+          <div>
+            <div class="px-5 py-5">
+              <span class="text-lg font-bold text-white tracking-tight"
+                >AppName</span
+              >
+            </div>
+            <nav class="space-y-1 px-3">
+              <button
+                @click="navigate('home')"
+                class="nav-item"
+                :class="page === 'home' ? 'nav-item-active' : 'nav-item-inactive'"
+              >
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                Home
+              </button>
+              <button
+                @click="navigate('feedback')"
+                class="nav-item"
+                :class="page === 'feedback' ? 'nav-item-active' : 'nav-item-inactive'"
+              >
+                <i
+                  data-lucide="message-square-warning"
+                  class="w-4 h-4"
+                ></i>
+                Agent Feedback
+                <span
+                  x-show="openCount > 0"
+                  class="ml-auto badge-warning"
+                  x-text="openCount"
+                ></span>
+              </button>
+            </nav>
+          </div>
+          <div class="px-5 py-4 border-t border-slate-800">
+            <div class="text-faint">admin@example.com</div>
+            <button
+              class="flex items-center gap-2 text-xs text-slate-400 hover:text-white mt-2 transition-colors"
+            >
+              <i data-lucide="log-out" class="w-3 h-3"></i>
+              Sign Out
+            </button>
+          </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0">
+          <!-- ==================== FEEDBACK PAGE ==================== -->
+          <div x-show="page === 'feedback'" class="flex h-screen">
+            <!-- Feedback List (left) -->
+            <div class="flex-1 min-w-0 flex flex-col">
+              <div class="p-8 pb-0">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-4">
+                    <h1 class="page-title">Agent Feedback</h1>
+                    <div class="flex items-center gap-2 text-xs">
+                      <span class="text-slate-400"
+                        ><span
+                          class="text-amber-400 font-medium"
+                          x-text="openCount"
+                        ></span>
+                        open</span
+                      >
+                      <span class="text-slate-600">&middot;</span>
+                      <span class="text-slate-400"
+                        ><span
+                          class="text-slate-300 font-medium"
+                          x-text="addressedCount"
+                        ></span>
+                        addressed</span
+                      >
+                    </div>
+                  </div>
+                  <button
+                    class="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
+                  >
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    Refresh
+                  </button>
+                </div>
+
+                <!-- Search + Filters -->
+                <div class="flex items-center gap-3 mb-4">
+                  <div class="relative flex-1">
+                    <i
+                      data-lucide="search"
+                      class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"
+                    ></i>
+                    <input
+                      type="text"
+                      x-model="searchQuery"
+                      placeholder="Search feedback..."
+                      class="input w-full pl-9 pr-8"
+                    />
+                    <button
+                      x-show="searchQuery"
+                      @click="searchQuery = ''"
+                      class="btn-icon absolute right-2.5 top-1/2 -translate-y-1/2"
+                    >
+                      <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                  <select x-model="agentFilter" class="select">
+                    <option value="">All agents</option>
+                    <template x-for="agent in uniqueAgents" :key="agent">
+                      <option :value="agent" x-text="agent"></option>
+                    </template>
+                  </select>
+                  <select x-model="categoryFilter" class="select">
+                    <option value="">All categories</option>
+                    <template
+                      x-for="cat in uniqueCategories"
+                      :key="cat"
+                    >
+                      <option :value="cat" x-text="cat"></option>
+                    </template>
+                  </select>
+                  <button
+                    @click="showArchived = !showArchived; selectedEntry = null;"
+                    :class="showArchived ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-900 text-slate-400 border-slate-700'"
+                    class="btn-toggle"
+                  >
+                    <i data-lucide="archive" class="w-3.5 h-3.5"></i>
+                    Archived
+                  </button>
+                </div>
+
+                <!-- Active filters indicator -->
+                <div
+                  x-show="agentFilter || categoryFilter"
+                  class="flex items-center gap-2 mb-4"
+                >
+                  <span class="text-faint">Filters:</span>
+                  <span x-show="agentFilter" class="filter-pill">
+                    <span x-text="agentFilter"></span>
+                    <button
+                      @click="agentFilter = ''"
+                      class="btn-icon"
+                    >
+                      <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                  </span>
+                  <span x-show="categoryFilter" class="filter-pill">
+                    <span x-text="categoryFilter"></span>
+                    <button
+                      @click="categoryFilter = ''"
+                      class="btn-icon"
+                    >
+                      <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                  </span>
+                  <button
+                    @click="clearFilters()"
+                    class="text-faint hover:text-white transition-colors"
+                  >
+                    Clear all
+                  </button>
+                </div>
+              </div>
+
+              <!-- Entries count -->
+              <div class="px-8 pb-3">
+                <span class="text-faint">
+                  <span x-text="visibleEntries.length"></span> feedback
+                  <span
+                    x-text="visibleEntries.length === 1 ? 'entry' : 'entries'"
+                  ></span>
+                </span>
+              </div>
+
+              <!-- Feedback List -->
+              <div class="flex-1 overflow-auto px-8 pb-8">
+                <div class="card divide-y divide-slate-800/50">
+                  <template
+                    x-for="entry in visibleEntries"
+                    :key="entry.id"
+                  >
+                    <div
+                      @click="selectEntry(entry); state = entry.status === 'open' ? 'selected-open' : 'selected-addressed';"
+                      :class="selectedEntry && selectedEntry.id === entry.id ? 'bg-slate-800' : 'hover:bg-slate-800/30'"
+                      class="px-5 py-4 cursor-pointer transition-colors"
+                    >
+                      <div class="flex items-start gap-3">
+                        <div class="pt-1">
+                          <div
+                            :class="entry.status === 'open' ? 'status-dot-open' : 'status-dot-success'"
+                          ></div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div
+                            class="flex items-center justify-between gap-4 mb-1"
+                          >
+                            <div class="flex items-center gap-2 min-w-0">
+                              <span
+                                x-show="entry.entityTitle"
+                                class="text-sm font-medium text-white truncate"
+                                x-text="entry.entityTitle"
+                              ></span>
+                              <span
+                                x-show="!entry.entityTitle"
+                                class="text-muted italic"
+                                >No entity context</span
+                              >
+                            </div>
+                            <span
+                              class="text-faint whitespace-nowrap shrink-0"
+                              x-text="entry.createdAt"
+                            ></span>
+                          </div>
+                          <div class="flex items-center gap-2 mb-2">
+                            <span
+                              class="badge-accent"
+                              x-text="entry.agentId"
+                            ></span>
+                            <span
+                              x-show="entry.category"
+                              class="badge-muted"
+                              x-text="entry.category"
+                            ></span>
+                            <span
+                              x-show="entry.modelId"
+                              class="text-faint"
+                              x-text="entry.modelId"
+                            ></span>
+                          </div>
+                          <p
+                            class="text-muted line-clamp-2"
+                            x-text="entry.feedback"
+                          ></p>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+
+                  <!-- Empty state -->
+                  <div
+                    x-show="visibleEntries.length === 0"
+                    class="px-5 py-12 text-center"
+                  >
+                    <i
+                      data-lucide="inbox"
+                      class="w-8 h-8 text-slate-600 mx-auto mb-3"
+                    ></i>
+                    <p class="text-muted">No feedback entries</p>
+                    <p class="text-faint mt-1">
+                      <span x-show="showArchived"
+                        >No archived entries found.</span
+                      >
+                      <span
+                        x-show="!showArchived && (searchQuery || agentFilter || categoryFilter)"
+                        >Try adjusting your filters.</span
+                      >
+                      <span
+                        x-show="!showArchived && !searchQuery && !agentFilter && !categoryFilter"
+                        >Feedback from agents will appear here.</span
+                      >
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Detail Sidebar -->
+            <div
+              x-show="selectedEntry"
+              x-transition:enter="transition ease-out duration-200"
+              x-transition:enter-start="translate-x-full"
+              x-transition:enter-end="translate-x-0"
+              class="w-96 border-l border-slate-800 bg-slate-900 overflow-y-auto shrink-0"
+            >
+              <template x-if="selectedEntry">
+                <div>
+                  <!-- Sidebar Header -->
+                  <div
+                    class="flex items-center justify-between panel-section"
+                  >
+                    <div class="flex items-center gap-2 min-w-0">
+                      <div
+                        :class="selectedEntry.status === 'open' ? 'status-dot-open' : 'status-dot-success'"
+                      ></div>
+                      <span
+                        class="text-xs font-medium uppercase tracking-wide"
+                        :class="selectedEntry.status === 'open' ? 'text-amber-400' : 'text-emerald-400'"
+                        x-text="selectedEntry.status"
+                      ></span>
+                    </div>
+                    <button
+                      @click="selectedEntry = null; state = showArchived ? 'archived' : 'default';"
+                      class="btn-icon"
+                    >
+                      <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+
+                  <!-- Processing Context -->
+                  <div class="panel-section">
+                    <h3 class="section-title mb-3">Context</h3>
+                    <div class="space-y-3">
+                      <div x-show="selectedEntry.entityTitle">
+                        <div class="label">Processing Entity</div>
+                        <a
+                          href="#"
+                          class="link"
+                          x-text="selectedEntry.entityTitle"
+                        ></a>
+                        <div
+                          class="text-mono mt-0.5"
+                          x-text="selectedEntry.entityId"
+                        ></div>
+                      </div>
+                      <div
+                        x-show="!selectedEntry.entityTitle"
+                        class="label italic"
+                      >
+                        No entity context — ad-hoc agent call
+                      </div>
+                      <div class="flex gap-4">
+                        <div>
+                          <div class="label">Agent</div>
+                          <div
+                            class="text-sm text-white"
+                            x-text="selectedEntry.agentId"
+                          ></div>
+                        </div>
+                        <div>
+                          <div class="label">Step</div>
+                          <div
+                            class="text-sm text-white"
+                            x-text="selectedEntry.stepName"
+                          ></div>
+                        </div>
+                      </div>
+                      <div class="flex gap-4">
+                        <div>
+                          <div class="label">Model</div>
+                          <div
+                            class="text-sm text-slate-300"
+                            x-text="selectedEntry.modelId || '—'"
+                          ></div>
+                        </div>
+                        <div>
+                          <div class="label">Date</div>
+                          <div
+                            class="text-sm text-slate-300"
+                            x-text="selectedEntry.createdAt"
+                          ></div>
+                        </div>
+                      </div>
+                      <div x-show="selectedEntry.category">
+                        <div class="label">Category</div>
+                        <span
+                          class="badge-muted"
+                          x-text="selectedEntry.category"
+                        ></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Feedback Section -->
+                  <div class="panel-section">
+                    <div class="flex items-center justify-between mb-3">
+                      <h3 class="section-title">Feedback</h3>
+                      <button class="btn-icon" title="Copy feedback">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                    <p
+                      class="text-body"
+                      x-text="selectedEntry.feedback"
+                    ></p>
+                  </div>
+
+                  <!-- Agent Input (collapsible) -->
+                  <div x-data="{ expanded: false }" class="panel-section">
+                    <button
+                      @click="expanded = !expanded"
+                      class="flex items-center justify-between w-full"
+                    >
+                      <h3 class="section-title">Agent Input</h3>
+                      <i
+                        data-lucide="chevron-down"
+                        class="w-4 h-4 text-slate-500 transition-transform"
+                        :class="expanded ? 'rotate-180' : ''"
+                      ></i>
+                    </button>
+                    <div x-show="expanded" x-transition class="mt-3">
+                      <div
+                        class="inset p-3 text-xs text-slate-400 font-mono leading-relaxed whitespace-pre-wrap"
+                        x-text="selectedEntry.agentInput || 'No input captured'"
+                      ></div>
+                    </div>
+                  </div>
+
+                  <!-- Actions Section -->
+                  <div class="px-5 py-4">
+                    <h3 class="section-title mb-3">Actions</h3>
+
+                    <!-- Open status: mark as addressed form -->
+                    <div x-show="selectedEntry.status === 'open'">
+                      <div x-data="{ notes: '' }">
+                        <label class="label block mb-1.5"
+                          >Admin Notes</label
+                        >
+                        <textarea
+                          x-model="notes"
+                          placeholder="Add notes about how this was addressed..."
+                          rows="3"
+                          class="textarea"
+                        ></textarea>
+                        <button
+                          @click="markAddressed(notes)"
+                          class="btn-primary w-full mt-2"
+                        >
+                          <i
+                            data-lucide="check-circle"
+                            class="w-4 h-4"
+                          ></i>
+                          Mark as Addressed
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Addressed status: notes readonly + reopen -->
+                    <div x-show="selectedEntry.status === 'addressed'">
+                      <div
+                        x-show="selectedEntry.adminNotes"
+                        class="mb-3"
+                      >
+                        <div class="label mb-1.5">Admin Notes</div>
+                        <div
+                          class="inset px-3 py-2 text-sm text-slate-300"
+                          x-text="selectedEntry.adminNotes"
+                        ></div>
+                        <div
+                          class="text-mono mt-1"
+                          x-text="'Addressed ' + selectedEntry.addressedAt"
+                        ></div>
+                      </div>
+                      <button
+                        @click="reopenEntry()"
+                        class="btn-outline w-full"
+                      >
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        Reopen
+                      </button>
+                    </div>
+
+                    <!-- Archive button -->
+                    <button
+                      x-show="!selectedEntry.archived"
+                      @click="archiveEntry()"
+                      class="btn-ghost w-full mt-3"
+                    >
+                      <i data-lucide="archive" class="w-3.5 h-3.5"></i>
+                      Archive
+                    </button>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- ==================== HOME PAGE (placeholder) ==================== -->
+          <div x-show="page === 'home'" class="p-8">
+            <h1 class="page-title mb-6">Home</h1>
+            <p class="text-muted">Dashboard content goes here.</p>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Initialize Lucide icons with Alpine-aware refresh -->
+    <script>
+      lucide.createIcons();
+      document.addEventListener("alpine:initialized", () => {
+        let pending = false;
+        const observer = new MutationObserver(() => {
+          if (pending) return;
+          pending = true;
+          requestAnimationFrame(() => {
+            lucide.createIcons();
+            pending = false;
+          });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+      });
+    </script>
+  </body>
+</html>

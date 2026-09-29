@@ -1,0 +1,32 @@
+# Skill Garden
+
+Claude Code plugins that are still growing. A skill often starts inside the
+project that needed it, before it is big enough to be worth a repository of its
+own. This is where such skills live in the meantime, side by side, and they
+graduate out when they are ready.
+
+## Install
+
+```
+/plugin marketplace add ichabodcole/skill-garden
+/plugin install <plugin>@skill-garden
+```
+
+## Plugins
+
+| Plugin         | What it does                                                                         |
+| -------------- | ------------------------------------------------------------------------------------ |
+| `operator`     | Authenticate to Operator and triage its documents into a project's docs              |
+| `recipes`      | Opinionated implementation recipes for specific stack patterns, and a skill to write them |
+| `toolbox`      | Interactive HTML mockups, Maestro mobile testing, screenshot optimisation            |
+| `agent-bridge` | Join an Agent Bridge for cross-project knowledge sharing between agents              |
+| `hivemind`     | Capture, consult, digest and give feedback to a cross-project knowledge base         |
+
+Each plugin's own `README.md` or skill files say more.
+
+## History
+
+These plugins started in
+[project-docs-scaffold-template](https://github.com/ichabodcole/project-docs-scaffold-template)
+and were copied here on 2026-09-29, from its commit `ece3a03`. Their earlier
+history is there.

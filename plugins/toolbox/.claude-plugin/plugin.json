@@ -1,0 +1,11 @@
+{
+  "name": "toolbox",
+  "version": "3.0.0",
+  "description": "Specialist development utilities — testing, optimization, and tooling skills that aren't specific to project documentation",
+  "author": {
+    "name": "Cole Reed"
+  },
+  "homepage": "https://github.com/ichabodcole/skill-garden",
+  "repository": "https://github.com/ichabodcole/skill-garden",
+  "license": "MIT"
+}

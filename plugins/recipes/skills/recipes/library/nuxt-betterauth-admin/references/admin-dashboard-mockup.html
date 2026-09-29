@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mockup — Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
+
+    <!--
+      ============================================================
+      THEME
+      Semantic classes built on Tailwind utilities via @apply.
+      Change the color palette here to match the target project's
+      design system; the markup below stays readable and consistent.
+
+      Default: dark theme (slate-950 base).
+      For light themes: adjust base/surface/text colors throughout.
+      ============================================================
+    -->
+    <style type="text/tailwindcss">
+      /* ---- Base ---- */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* ---- Typography ---- */
+      .page-title {
+        @apply text-2xl font-bold text-white;
+      }
+      .section-title {
+        @apply text-xs font-semibold text-slate-400 uppercase tracking-wide;
+      }
+      .label {
+        @apply text-xs text-slate-500;
+      }
+      .text-body {
+        @apply text-sm text-slate-200 leading-relaxed;
+      }
+      .text-muted {
+        @apply text-sm text-slate-400;
+      }
+      .text-faint {
+        @apply text-xs text-slate-500;
+      }
+      .text-mono {
+        @apply text-xs text-slate-600 font-mono;
+      }
+      .link {
+        @apply text-sm text-blue-400 hover:text-blue-300 transition-colors;
+      }
+
+      /* ---- Surfaces ---- */
+      .card {
+        @apply bg-slate-900 border border-slate-800 rounded-lg overflow-hidden;
+      }
+      .inset {
+        @apply bg-slate-950 border border-slate-800 rounded-md;
+      }
+      .panel-section {
+        @apply px-5 py-4 border-b border-slate-800;
+      }
+
+      /* ---- Badges ---- */
+      .badge {
+        @apply text-xs px-2 py-0.5 rounded border font-medium;
+      }
+      .badge-accent {
+        @apply badge bg-blue-500/10 text-blue-300 border-blue-500/20;
+      }
+      .badge-muted {
+        @apply badge bg-slate-700/50 text-slate-300 border-slate-600;
+      }
+      .badge-warning {
+        @apply badge bg-amber-500/20 text-amber-400 border-amber-500/30;
+      }
+
+      /* ---- Status indicators ---- */
+      .status-dot {
+        @apply w-2 h-2 rounded-full shrink-0;
+      }
+      .status-dot-open {
+        @apply status-dot bg-amber-400;
+      }
+      .status-dot-success {
+        @apply status-dot bg-emerald-400;
+      }
+
+      /* ---- Buttons ---- */
+      .btn {
+        @apply text-sm px-4 py-2 rounded-md font-medium transition-colors
+               flex items-center justify-center gap-2;
+      }
+      .btn-primary {
+        @apply btn bg-emerald-600 text-white hover:bg-emerald-500;
+      }
+      .btn-outline {
+        @apply btn border border-slate-700 text-slate-300 hover:bg-slate-800;
+      }
+      .btn-ghost {
+        @apply text-xs px-3 py-2 rounded-md border border-slate-800
+               text-slate-500 hover:text-slate-300 hover:border-slate-700
+               transition-colors flex items-center justify-center gap-2;
+      }
+      .btn-icon {
+        @apply text-slate-500 hover:text-white transition-colors;
+      }
+
+      /* ---- Form controls ---- */
+      .input {
+        @apply bg-slate-900 border border-slate-700 text-sm text-white
+               px-3 py-2 rounded-md placeholder-slate-500
+               focus:outline-none focus:border-slate-500;
+      }
+      .select {
+        @apply input cursor-pointer text-slate-300;
+      }
+      .textarea {
+        @apply w-full bg-slate-950 border border-slate-800 text-sm text-white
+               px-3 py-2 rounded-md placeholder-slate-600
+               focus:outline-none focus:border-slate-600 resize-none;
+      }
+
+      /* ---- Navigation ---- */
+      .nav-item {
+        @apply w-full flex items-center gap-3 px-3 py-2 rounded-md
+               text-sm font-medium transition-colors;
+      }
+      .nav-item-active {
+        @apply bg-slate-800 text-white;
+      }
+      .nav-item-inactive {
+        @apply text-slate-400 hover:text-white hover:bg-slate-800/50;
+      }
+
+      /* ---- Utilities ---- */
+      .filter-pill {
+        @apply inline-flex items-center gap-1 text-xs bg-slate-800
+               text-slate-300 border border-slate-700 px-2 py-0.5 rounded;
+      }
+      .skeleton {
+        background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+        border-radius: 4px;
+      }
+      @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+    </style>
+
+    <!--
+      ============================================================
+      APP STATE
+      Register all state and methods with Alpine.data() below.
+      Use x-data="app" on the root element in the body.
+      ============================================================
+    -->
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.data("app", () => ({
+          state: "dashboard",
+          page: "dashboard",
+          selectedUser: null,
+          showRoleConfirm: false,
+          showBanConfirm: false,
+          pendingRole: "",
+          searchQuery: "",
+          users: [
+            { id: 1, name: "Admin User", email: "admin@example.com", role: "admin", verified: true, status: "Active", joined: "3/6/2026" },
+            { id: 2, name: "Jane Cooper", email: "jane@example.com", role: "user", verified: true, status: "Active", joined: "3/7/2026" },
+            { id: 3, name: "Test User", email: "test@example.com", role: "user", verified: false, status: "Active", joined: "3/8/2026" },
+            { id: 4, name: "Bob Wilson", email: "bob@example.com", role: "user", verified: true, status: "Banned", joined: "3/9/2026" },
+            { id: 5, name: "Alice Chen", email: "alice@example.com", role: "user", verified: true, status: "Active", joined: "3/10/2026" },
+          ],
+          get filteredUsers() {
+            if (!this.searchQuery) return this.users;
+            const q = this.searchQuery.toLowerCase();
+            return this.users.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+          },
+          get totalUsers() { return this.users.length; },
+          get adminCount() { return this.users.filter(u => u.role === "admin").length; },
+          get verifiedCount() { return this.users.filter(u => u.verified).length; },
+          get recentSignups() { return this.users.slice(-3).reverse(); },
+          selectUser(user) { this.selectedUser = user; },
+          initiateRoleChange(newRole) {
+            if (newRole !== this.selectedUser.role) {
+              this.pendingRole = newRole;
+              this.showRoleConfirm = true;
+            }
+          },
+          confirmRoleChange() {
+            this.selectedUser.role = this.pendingRole;
+            this.showRoleConfirm = false;
+            this.pendingRole = "";
+          },
+          cancelRoleChange() {
+            this.showRoleConfirm = false;
+            this.pendingRole = "";
+          },
+          confirmBan() {
+            this.selectedUser.status = this.selectedUser.status === "Banned" ? "Active" : "Banned";
+            this.showBanConfirm = false;
+          },
+          cancelBan() {
+            this.showBanConfirm = false;
+          },
+          navigate(p) {
+            this.page = p;
+            this.state = p;
+            this.selectedUser = null;
+            this.searchQuery = "";
+          },
+        }));
+      });
+    </script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+  </head>
+  <body class="bg-slate-950 min-h-screen text-slate-200">
+    <div x-data="app">
+      <!-- State switcher -->
+      <div
+        class="bg-amber-950/60 border-b border-amber-800/40 px-6 py-2 flex items-center gap-3 flex-wrap"
+      >
+        <span class="section-title text-amber-500">Prototype state</span>
+        <div class="flex gap-2 flex-wrap">
+          <button
+            @click="state = 'dashboard'; page = 'dashboard'; selectedUser = null;"
+            :class="state === 'dashboard' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            1 · Dashboard
+          </button>
+          <button
+            @click="state = 'users'; page = 'users'; selectedUser = null; searchQuery = '';"
+            :class="state === 'users' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            2 · Users List
+          </button>
+          <button
+            @click="state = 'user-selected'; page = 'users'; if (!selectedUser) selectUser(users[0]);"
+            :class="state === 'user-selected' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            3 · User Selected
+          </button>
+          <button
+            @click="state = 'role-change'; page = 'users'; selectUser(users[1]); pendingRole = 'admin'; showRoleConfirm = true;"
+            :class="state === 'role-change' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            4 · Role Change
+          </button>
+          <button
+            @click="state = 'search'; page = 'users'; searchQuery = 'alice';"
+            :class="state === 'search' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            5 · Search
+          </button>
+          <button
+            @click="state = 'ban-user'; page = 'users'; selectUser(users[1]); showBanConfirm = true;"
+            :class="state === 'ban-user' ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-800 text-slate-300 border-slate-600'"
+            class="text-xs px-3 py-1 rounded border font-medium"
+          >
+            6 · Ban User
+          </button>
+        </div>
+      </div>
+
+      <div class="flex min-h-screen">
+        <!-- Sidebar Nav -->
+        <aside class="w-56 border-r border-slate-800 flex flex-col justify-between shrink-0">
+          <div>
+            <div class="px-5 py-5">
+              <span class="text-lg font-bold text-white tracking-tight">AppName</span>
+            </div>
+            <nav class="space-y-1 px-3">
+              <button
+                @click="navigate('dashboard')"
+                :class="page === 'dashboard' ? 'nav-item-active' : 'nav-item-inactive'"
+                class="nav-item"
+              >
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                Dashboard
+              </button>
+              <button
+                @click="navigate('users')"
+                :class="page === 'users' ? 'nav-item-active' : 'nav-item-inactive'"
+                class="nav-item"
+              >
+                <i data-lucide="users" class="w-4 h-4"></i>
+                Users
+              </button>
+            </nav>
+          </div>
+          <div class="px-5 py-4 border-t border-slate-800">
+            <div class="label">admin@example.com</div>
+            <button class="flex items-center gap-2 text-xs text-slate-400 hover:text-white mt-2 transition-colors">
+              <i data-lucide="log-out" class="w-3 h-3"></i>
+              Sign Out
+            </button>
+          </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0">
+
+          <!-- ==================== DASHBOARD PAGE ==================== -->
+          <div x-show="page === 'dashboard'" class="p-8">
+            <h1 class="page-title mb-6">Dashboard</h1>
+
+            <!-- Stat Cards -->
+            <div class="grid grid-cols-3 gap-4 mb-8">
+              <div class="card p-5">
+                <div class="text-muted">Total Users</div>
+                <div class="text-3xl font-bold text-white mt-1" x-text="totalUsers"></div>
+              </div>
+              <div class="card p-5">
+                <div class="text-muted">Admins</div>
+                <div class="text-3xl font-bold text-white mt-1" x-text="adminCount"></div>
+              </div>
+              <div class="card p-5">
+                <div class="text-muted">Verified</div>
+                <div class="text-3xl font-bold text-white mt-1" x-text="verifiedCount"></div>
+              </div>
+            </div>
+
+            <!-- Recent Signups -->
+            <div class="card">
+              <div class="panel-section">
+                <h2 class="text-base font-semibold text-white">Recent Signups</h2>
+              </div>
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-slate-800 text-slate-400">
+                    <th class="text-left px-5 py-3 font-medium">Name</th>
+                    <th class="text-left px-5 py-3 font-medium">Email</th>
+                    <th class="text-left px-5 py-3 font-medium">Joined</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="user in recentSignups" :key="user.id">
+                    <tr class="border-b border-slate-800/50 hover:bg-slate-800/30">
+                      <td class="px-5 py-3 text-white" x-text="user.name"></td>
+                      <td class="px-5 py-3 text-slate-300" x-text="user.email"></td>
+                      <td class="px-5 py-3 text-slate-400" x-text="user.joined"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ==================== USERS PAGE ==================== -->
+          <div x-show="page === 'users'" class="flex h-screen">
+
+            <!-- Users List (left) -->
+            <div class="flex-1 min-w-0 flex flex-col">
+              <div class="p-8 pb-0">
+                <div class="flex items-center justify-between mb-6">
+                  <h1 class="page-title">Users</h1>
+                  <!-- Search -->
+                  <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <input
+                      type="text"
+                      x-model="searchQuery"
+                      placeholder="Search by name or email..."
+                      class="input pl-9 pr-8 w-64"
+                    />
+                    <button
+                      x-show="searchQuery"
+                      @click="searchQuery = ''"
+                      class="absolute right-2.5 top-1/2 -translate-y-1/2 btn-icon"
+                    >
+                      <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Users Table -->
+              <div class="flex-1 overflow-auto px-8 pb-8">
+                <div class="card">
+                  <table class="w-full text-sm table-fixed">
+                    <colgroup>
+                      <col style="width: 22%" />
+                      <col style="width: 28%" />
+                      <col style="width: 12%" />
+                      <col style="width: 14%" />
+                      <col style="width: 12%" />
+                      <col style="width: 12%" />
+                    </colgroup>
+                    <thead>
+                      <tr class="border-b border-slate-800 text-slate-400">
+                        <th class="text-left px-4 py-3 font-medium">Name</th>
+                        <th class="text-left px-4 py-3 font-medium">Email</th>
+                        <th class="text-left px-4 py-3 font-medium">Role</th>
+                        <th class="text-left px-4 py-3 font-medium">Verified</th>
+                        <th class="text-left px-4 py-3 font-medium">Status</th>
+                        <th class="text-left px-4 py-3 font-medium">Joined</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <template x-for="user in filteredUsers" :key="user.id">
+                        <tr
+                          @click="selectUser(user); state = 'user-selected';"
+                          :class="selectedUser?.id === user.id ? 'bg-slate-800' : 'hover:bg-slate-800/30'"
+                          class="border-b border-slate-800/50 cursor-pointer transition-colors"
+                        >
+                          <td class="px-4 py-3 text-white truncate" x-text="user.name"></td>
+                          <td class="px-4 py-3 text-slate-300 truncate" x-text="user.email"></td>
+                          <td class="px-4 py-3">
+                            <span
+                              :class="user.role === 'admin' ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'badge-muted'"
+                              class="badge"
+                              x-text="user.role"
+                            ></span>
+                          </td>
+                          <td class="px-4 py-3">
+                            <span
+                              :class="user.verified ? 'text-emerald-400' : 'text-slate-500'"
+                            >
+                              <template x-if="user.verified">
+                                <span class="flex items-center gap-1 text-xs"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Verified</span>
+                              </template>
+                              <template x-if="!user.verified">
+                                <span class="text-faint">Pending</span>
+                              </template>
+                            </span>
+                          </td>
+                          <td class="px-4 py-3">
+                            <span
+                              :class="user.status === 'Active' ? 'text-emerald-400' : 'text-red-400'"
+                              class="text-xs"
+                              x-text="user.status"
+                            ></span>
+                          </td>
+                          <td class="px-4 py-3 text-slate-400 text-xs" x-text="user.joined"></td>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- User Detail Sidebar -->
+            <div
+              x-show="selectedUser"
+              x-transition:enter="transition ease-out duration-200"
+              x-transition:enter-start="translate-x-full"
+              x-transition:enter-end="translate-x-0"
+              class="w-80 border-l border-slate-800 bg-slate-900 overflow-y-auto shrink-0"
+            >
+              <template x-if="selectedUser">
+                <div>
+                  <!-- Sidebar Header -->
+                  <div class="panel-section flex items-center justify-between">
+                    <h2 class="font-semibold text-white text-sm" x-text="selectedUser.name"></h2>
+                    <button @click="selectedUser = null; state = 'users';" class="btn-icon">
+                      <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+
+                  <!-- Profile Section -->
+                  <div class="panel-section">
+                    <h3 class="section-title mb-3">Profile</h3>
+                    <div class="space-y-3">
+                      <div>
+                        <div class="label">Email</div>
+                        <div class="text-sm text-white" x-text="selectedUser.email"></div>
+                      </div>
+                      <div>
+                        <div class="label">Email Verified</div>
+                        <div class="mt-0.5">
+                          <span
+                            x-show="selectedUser.verified"
+                            class="inline-flex items-center gap-1 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded"
+                          >
+                            <i data-lucide="check-circle" class="w-3 h-3"></i> Verified
+                          </span>
+                          <span
+                            x-show="!selectedUser.verified"
+                            class="inline-flex items-center gap-1 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded"
+                          >
+                            <i data-lucide="clock" class="w-3 h-3"></i> Pending
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="label">Role</div>
+                        <div class="mt-0.5">
+                          <span
+                            :class="selectedUser.role === 'admin' ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'badge-muted'"
+                            class="badge capitalize"
+                            x-text="selectedUser.role"
+                          ></span>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="label">Status</div>
+                        <div class="text-sm" :class="selectedUser.status === 'Active' ? 'text-emerald-400' : 'text-red-400'" x-text="selectedUser.status"></div>
+                      </div>
+                      <div>
+                        <div class="label">Joined</div>
+                        <div class="text-sm text-white" x-text="selectedUser.joined"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Actions Section -->
+                  <div class="px-5 py-4">
+                    <h3 class="section-title mb-3">Actions</h3>
+                    <div class="space-y-2">
+                      <button
+                        @click="pendingRole = selectedUser.role; showRoleConfirm = true;"
+                        class="btn-outline w-full text-xs"
+                      >
+                        <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i>
+                        Change Role
+                      </button>
+                      <button
+                        @click="showBanConfirm = true;"
+                        :class="selectedUser.status === 'Banned'
+                          ? 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10'
+                          : 'border-red-500/30 text-red-400 hover:bg-red-500/10'"
+                        class="w-full text-xs px-3 py-2 rounded-md border flex items-center justify-center gap-2 transition-colors"
+                      >
+                        <template x-if="selectedUser.status === 'Banned'">
+                          <span class="flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                            Unban User
+                          </span>
+                        </template>
+                        <template x-if="selectedUser.status !== 'Banned'">
+                          <span class="flex items-center gap-2">
+                            <i data-lucide="ban" class="w-3.5 h-3.5"></i>
+                            Ban User
+                          </span>
+                        </template>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <!-- Role Change Confirmation Dialog -->
+      <div
+        x-show="showRoleConfirm"
+        x-transition:enter="transition ease-out duration-150"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-100"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+        @click.self="cancelRoleChange()"
+      >
+        <div
+          x-show="showRoleConfirm"
+          x-transition:enter="transition ease-out duration-150"
+          x-transition:enter-start="opacity-0 scale-95"
+          x-transition:enter-end="opacity-100 scale-100"
+          class="bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-96 p-6"
+        >
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
+              <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white">Change User Role</h3>
+              <p class="text-muted">
+                Changing roles for
+                <span class="font-medium text-white" x-text="selectedUser?.name"></span>
+              </p>
+            </div>
+          </div>
+          <p class="text-sm text-slate-300 mb-4">
+            This will change the user's permissions and access level. Please confirm the new role below.
+          </p>
+          <div class="mb-6">
+            <label class="label block mb-1.5">New Role</label>
+            <select
+              x-model="pendingRole"
+              class="select w-full"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="flex justify-end gap-3">
+            <button
+              @click="cancelRoleChange()"
+              class="btn-outline"
+            >
+              Cancel
+            </button>
+            <button
+              @click="confirmRoleChange()"
+              :disabled="pendingRole === selectedUser?.role"
+              :class="pendingRole === selectedUser?.role ? 'opacity-50 cursor-not-allowed' : 'hover:bg-amber-500'"
+              class="btn bg-amber-600 text-white"
+            >
+              Confirm Change
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ban/Unban Confirmation Dialog -->
+      <div
+        x-show="showBanConfirm"
+        x-transition:enter="transition ease-out duration-150"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-100"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+        @click.self="cancelBan()"
+      >
+        <div
+          x-show="showBanConfirm"
+          x-transition:enter="transition ease-out duration-150"
+          x-transition:enter-start="opacity-0 scale-95"
+          x-transition:enter-end="opacity-100 scale-100"
+          class="bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-96 p-6"
+        >
+          <!-- Ban state -->
+          <template x-if="selectedUser?.status !== 'Banned'">
+            <div>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
+                  <i data-lucide="ban" class="w-5 h-5 text-red-400"></i>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-white">Ban User</h3>
+                  <p class="text-muted" x-text="selectedUser?.name"></p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-300 mb-6">
+                This will immediately revoke
+                <span class="font-medium text-white" x-text="selectedUser?.name"></span>'s
+                access. They will not be able to sign in until unbanned.
+              </p>
+              <div class="flex justify-end gap-3">
+                <button
+                  @click="cancelBan()"
+                  class="btn-outline"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click="confirmBan()"
+                  class="btn bg-red-600 text-white hover:bg-red-500"
+                >
+                  Ban User
+                </button>
+              </div>
+            </div>
+          </template>
+          <!-- Unban state -->
+          <template x-if="selectedUser?.status === 'Banned'">
+            <div>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                  <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-white">Unban User</h3>
+                  <p class="text-muted" x-text="selectedUser?.name"></p>
+                </div>
+              </div>
+              <p class="text-sm text-slate-300 mb-6">
+                This will restore
+                <span class="font-medium text-white" x-text="selectedUser?.name"></span>'s
+                access. They will be able to sign in again.
+              </p>
+              <div class="flex justify-end gap-3">
+                <button
+                  @click="cancelBan()"
+                  class="btn-outline"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click="confirmBan()"
+                  class="btn bg-emerald-600 text-white hover:bg-emerald-500"
+                >
+                  Unban User
+                </button>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+    <script>
+      lucide.createIcons();
+      // Re-create icons when Alpine updates the DOM (debounced to prevent loop)
+      document.addEventListener("alpine:initialized", () => {
+        let pending = false;
+        const observer = new MutationObserver(() => {
+          if (pending) return;
+          pending = true;
+          requestAnimationFrame(() => {
+            lucide.createIcons();
+            pending = false;
+          });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+      });
+    </script>
+  </body>
+</html>

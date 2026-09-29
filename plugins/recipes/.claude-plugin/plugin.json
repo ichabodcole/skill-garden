@@ -1,0 +1,11 @@
+{
+  "name": "recipes",
+  "version": "2.3.0",
+  "description": "Reusable project recipes - executable blueprints for scaffolding and implementing specific technology stacks and patterns",
+  "author": {
+    "name": "Cole Reed"
+  },
+  "homepage": "https://github.com/ichabodcole/skill-garden",
+  "repository": "https://github.com/ichabodcole/skill-garden",
+  "license": "MIT"
+}

@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mockup — MCP Management Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script>
+      tailwind.config = { darkMode: "class" };
+    </script>
+
+    <style type="text/tailwindcss">
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+
+      .page-title    { @apply text-2xl font-bold text-gray-900; }
+      .section-title { @apply text-xs font-semibold text-gray-400 uppercase tracking-wide; }
+      .label         { @apply text-xs font-medium text-gray-600; }
+      .text-muted    { @apply text-sm text-gray-500; }
+      .text-faint    { @apply text-xs text-gray-400; }
+      .text-mono     { @apply text-xs text-gray-500 font-mono; }
+
+      .card          { @apply bg-white border border-gray-200 rounded-lg overflow-hidden; }
+      .inset         { @apply bg-gray-50 border border-gray-200 rounded-md; }
+
+      .badge         { @apply text-xs px-2 py-0.5 rounded-full border font-medium; }
+      .badge-muted   { @apply badge bg-gray-100 text-gray-600 border-gray-200; }
+      .badge-green   { @apply badge bg-emerald-50 text-emerald-700 border-emerald-200; }
+      .badge-red     { @apply badge bg-red-50 text-red-600 border-red-200; }
+
+      .btn         { @apply text-sm px-3 py-1.5 rounded-md font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer; }
+      .btn-primary { @apply btn bg-gray-900 text-white hover:bg-gray-700; }
+      .btn-outline { @apply btn border border-gray-200 text-gray-700 hover:bg-gray-50; }
+      .btn-ghost   { @apply btn text-gray-500 hover:text-gray-900 hover:bg-gray-100; }
+      .btn-danger  { @apply btn bg-red-600 text-white hover:bg-red-700; }
+      .btn-icon    { @apply p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer; }
+
+      .input    { @apply w-full border border-gray-200 text-sm text-gray-900 px-3 py-2 rounded-md placeholder-gray-400 focus:outline-none focus:border-gray-400 bg-white; }
+      .select   { @apply input cursor-pointer; }
+      .textarea { @apply input resize-none; }
+
+      .tbl-th { @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide; }
+      .tbl-td { @apply px-4 py-3 text-sm text-gray-700; }
+      .tbl-tr { @apply border-b border-gray-100 hover:bg-gray-50/60 transition-colors; }
+
+      .sub-nav-item        { @apply text-sm px-1 py-2 border-b-2 font-medium transition-colors cursor-pointer whitespace-nowrap; }
+      .sub-nav-item-active { @apply border-gray-900 text-gray-900; }
+      .sub-nav-item-idle   { @apply border-transparent text-gray-500 hover:text-gray-700; }
+
+      .modal-overlay  { @apply fixed inset-0 bg-black/30 z-40 flex items-center justify-center; }
+      .modal-panel    { @apply bg-white rounded-xl shadow-xl z-50 w-full max-w-md mx-4 overflow-hidden; }
+      .modal-panel-lg { @apply bg-white rounded-xl shadow-xl z-50 w-full max-w-2xl mx-4 overflow-hidden; }
+      .modal-header   { @apply px-6 py-4 border-b border-gray-100; }
+      .modal-body     { @apply px-6 py-5; }
+      .modal-footer   { @apply px-6 py-4 border-t border-gray-100 flex justify-end gap-2; }
+    </style>
+
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.data("app", () => ({
+          group: "access-groups",
+          state: "groups-list",
+
+          groups: [
+            {
+              id: "access-groups",
+              label: "Access Groups",
+              states: [
+                { id: "groups-list",    label: "1 · List" },
+                { id: "groups-new",     label: "2 · New Group" },
+                { id: "groups-edit",    label: "3 · Edit Group" },
+                { id: "groups-delete",  label: "4 · Delete Group" },
+                { id: "groups-folders", label: "5 · Folder Picker" },
+              ],
+            },
+            {
+              id: "agents",
+              label: "Agents",
+              states: [
+                { id: "agents-list", label: "6 · List" },
+                { id: "agents-new",  label: "7 · New Agent" },
+              ],
+            },
+            {
+              id: "roles",
+              label: "Roles",
+              states: [
+                { id: "roles-list", label: "8 · List" },
+                { id: "roles-new",  label: "9 · New Role" },
+              ],
+            },
+            {
+              id: "keys",
+              label: "Keys",
+              states: [
+                { id: "keys-list",   label: "10 · List" },
+                { id: "keys-issue",  label: "11 · Issue Key" },
+                { id: "keys-result", label: "12 · Key Generated" },
+                { id: "keys-delete", label: "13 · Delete Key" },
+              ],
+            },
+          ],
+
+          get activeGroup() {
+            return this.groups.find(g => g.id === this.group);
+          },
+
+          selectGroup(groupId) {
+            this.group = groupId;
+            const g = this.groups.find(g => g.id === groupId);
+            this.state = g.states[0].id;
+          },
+
+          selectState(stateId) {
+            this.state = stateId;
+            if (stateId === "groups-edit")    this.editingGroup  = { ...this.accessGroups[0] };
+            if (stateId === "groups-delete")  this.deletingGroup = this.accessGroups[0];
+            if (stateId === "groups-folders") this.pickerGroup   = this.accessGroups[0].name;
+            if (stateId === "keys-delete")    this.revokingEntry = this.membershipKeys[0];
+          },
+
+          // Form state
+          newGroupName: "",
+          newGroupDesc: "",
+          editingGroup: null,
+          deletingGroup: null,
+
+          newAgentName: "",
+          newAgentDescription: "",
+
+          newRoleName: "",
+          newRoleDesc: "",
+          rolePerms: {
+            reading:   { label: "Reading",           perms: { browse: false, read_document: false, search_documents: false } },
+            documents: { label: "Documents",         perms: { create_document: false, update_document: false, delete_document: false, move_document: false, rename_document: false } },
+            groups:    { label: "Groups & Projects", perms: { create_group: false, delete_group: false, move_group: false, rename_group: false, list_projects: false, list_resources: false } },
+          },
+
+          keyAgent: "",
+          keyGroup: "",
+          keyRole: "",
+          generatedKey: "mcp_9f3a2d8e1c7b5a4f0e6d2c8b9a3f7e1d4c5b2a8f9e3d7c1b4a6f2e8d9c3b7a1f4",
+
+          revokingEntry: null,
+
+          // Folder picker
+          pickerGroup: "Engineering Docs",
+          folders: {
+            "Personal Projects": { expanded: true,  selected: false, indeterminate: false, children: { "Side Projects": { selected: true }, "Experiments": { selected: false } } },
+            "Work":              { expanded: true,  selected: false, indeterminate: true,  children: { "Engineering": { selected: true }, "Design": { selected: true }, "Product": { selected: false } } },
+            "Research":          { expanded: false, selected: false, indeterminate: false, children: { "Papers": { selected: false }, "Notes": { selected: false } } },
+          },
+
+          // Sample data
+          agents: [
+            { id: 1, name: "Claude Code",  description: "Code-aware assistant and automation", groups: 2, created: "Jan 14, 2026" },
+            { id: 2, name: "CI Pipeline",  description: "Automated docs update on deploy",     groups: 1, created: "Feb 3, 2026"  },
+            { id: 3, name: "Research Bot", description: "Research document indexing",          groups: 1, created: "Feb 20, 2026" },
+          ],
+
+          accessGroups: [
+            { id: 1, name: "Engineering Docs", description: "Internal eng documentation",     folders: 3, members: 2, created: "Jan 14, 2026" },
+            { id: 2, name: "Public Notes",     description: "Notes safe to share externally", folders: 1, members: 1, created: "Feb 3, 2026"  },
+            { id: 3, name: "Research Archive", description: "Long-form research and papers",  folders: 5, members: 1, created: "Feb 20, 2026" },
+          ],
+
+          roles: [
+            { id: 1, name: "Read Only",      description: "Browse and read documents",       perms: ["browse", "read_document", "search_documents"],                                                                                                                                              memberships: 3 },
+            { id: 2, name: "Content Writer", description: "Read and write document content", perms: ["browse", "read_document", "search_documents", "create_document", "update_document", "delete_document"],                                                                                     memberships: 2 },
+            { id: 3, name: "Full Access",    description: "All MCP tools enabled",           perms: ["browse", "read_document", "search_documents", "create_document", "update_document", "delete_document", "move_document", "rename_document", "create_group", "delete_group", "move_group", "rename_group", "list_projects", "list_resources"], memberships: 1 },
+          ],
+
+          membershipKeys: [
+            { id: 1, agent: "Claude Code",  group: "Engineering Docs", roleName: "Read Only",      prefix: "mcp_a1b2c3d4", lastUsed: "2 min ago"  },
+            { id: 2, agent: "Claude Code",  group: "Research Archive", roleName: "Read Only",      prefix: "mcp_e5f6g7h8", lastUsed: "Never"       },
+            { id: 3, agent: "CI Pipeline",  group: "Engineering Docs", roleName: "Content Writer", prefix: "mcp_i9j0k1l2", lastUsed: "1 hour ago"  },
+            { id: 4, agent: "Research Bot", group: "Public Notes",     roleName: "Read Only",      prefix: "mcp_m3n4o5p6", lastUsed: "3 days ago"  },
+          ],
+
+          // Helpers
+          countSelectedFolders() {
+            let n = 0;
+            for (const proj of Object.values(this.folders)) {
+              for (const child of Object.values(proj.children)) {
+                if (child.selected) n++;
+              }
+            }
+            return n;
+          },
+
+          toggleChild(projName, childName) {
+            this.folders[projName].children[childName].selected = !this.folders[projName].children[childName].selected;
+            this.recomputeProj(projName);
+          },
+
+          toggleProj(projName) {
+            const proj = this.folders[projName];
+            const allSel = Object.values(proj.children).every(c => c.selected);
+            for (const c of Object.values(proj.children)) c.selected = !allSel;
+            this.recomputeProj(projName);
+          },
+
+          recomputeProj(projName) {
+            const children = Object.values(this.folders[projName].children);
+            const selCount = children.filter(c => c.selected).length;
+            this.folders[projName].selected = selCount === children.length;
+            this.folders[projName].indeterminate = selCount > 0 && selCount < children.length;
+          },
+
+          selectAllFolders() {
+            for (const proj of Object.values(this.folders)) {
+              for (const c of Object.values(proj.children)) c.selected = true;
+              proj.selected = true;
+              proj.indeterminate = false;
+            }
+          },
+
+          clearAllFolders() {
+            for (const proj of Object.values(this.folders)) {
+              for (const c of Object.values(proj.children)) c.selected = false;
+              proj.selected = false;
+              proj.indeterminate = false;
+            }
+          },
+
+          allPerms(cat) { return Object.values(this.rolePerms[cat].perms).every(Boolean); },
+          somePerms(cat) { const v = Object.values(this.rolePerms[cat].perms); return v.some(Boolean) && !v.every(Boolean); },
+          toggleCat(cat) { const a = this.allPerms(cat); for (const k of Object.keys(this.rolePerms[cat].perms)) this.rolePerms[cat].perms[k] = !a; },
+
+          issueKey() { this.state = "keys-result"; },
+
+          doDelete() {
+            if (this.revokingEntry) {
+              this.membershipKeys = this.membershipKeys.filter(k => k.id !== this.revokingEntry.id);
+            }
+            this.revokingEntry = null;
+            this.state = "keys-list";
+          },
+        }));
+      });
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  </head>
+
+  <body class="bg-gray-50 text-gray-900 min-h-screen">
+    <div x-data="app">
+
+      <!-- ══ STATE SWITCHER — two-level ══ -->
+      <div class="sticky top-0 z-50 bg-amber-950/60 border-b border-amber-800/40">
+
+        <!-- Row 1: group tabs -->
+        <div class="px-4 pt-2 pb-0 flex items-center gap-1">
+          <span class="section-title text-amber-500 pr-2">Prototype</span>
+          <template x-for="g in groups" :key="g.id">
+            <button
+              @click="selectGroup(g.id)"
+              :class="group === g.id
+                ? 'bg-amber-700/60 text-amber-100 border-amber-600/60'
+                : 'text-amber-400/70 border-transparent hover:text-amber-300 hover:bg-amber-800/30'"
+              class="text-xs px-3 py-1.5 rounded-t border border-b-0 font-medium transition-colors"
+              x-text="g.label"
+            ></button>
+          </template>
+        </div>
+
+        <!-- Row 2: state buttons for active group -->
+        <div class="px-4 py-1.5 flex items-center gap-1.5 bg-amber-900/30">
+          <template x-for="s in activeGroup.states" :key="s.id">
+            <button
+              @click="selectState(s.id)"
+              :class="state === s.id
+                ? 'bg-amber-600 text-white border-amber-600'
+                : 'bg-slate-800 text-slate-300 border-slate-600 hover:border-slate-400 hover:text-slate-100'"
+              class="text-xs px-2.5 py-1 rounded border font-medium transition-colors"
+              x-text="s.label"
+            ></button>
+          </template>
+        </div>
+
+      </div>
+
+      <!-- ══ APP SHELL ══ -->
+
+      <!-- Top Nav -->
+      <header class="bg-white border-b border-gray-200">
+        <div class="max-w-6xl mx-auto px-6 flex h-14 items-center justify-between">
+          <span class="text-base font-bold text-gray-900">Operator</span>
+          <div class="flex items-center gap-4">
+            <span class="text-sm text-gray-500">admin@example.com</span>
+            <button class="btn-ghost text-sm">Settings</button>
+            <button class="btn-ghost text-sm">Sign Out</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Admin Sub-Nav -->
+      <div class="bg-white border-b border-gray-200">
+        <div class="max-w-6xl mx-auto px-6">
+          <nav class="flex gap-6">
+            <span class="text-sm text-gray-400 py-2 cursor-pointer hover:text-gray-700">Users</span>
+            <span class="text-sm text-gray-400 py-2 cursor-pointer hover:text-gray-700">AI Models</span>
+            <span class="text-sm text-gray-400 py-2 cursor-pointer hover:text-gray-700">Hub</span>
+            <span class="text-sm font-medium text-gray-900 py-2 border-b-2 border-gray-900">MCP</span>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Page Content -->
+      <main class="max-w-6xl mx-auto px-6 py-8">
+
+        <!-- Page Header -->
+        <div class="mb-6">
+          <h1 class="page-title">MCP Access Control</h1>
+          <p class="text-muted mt-1">Manage AI agents and their access to your documents</p>
+        </div>
+
+        <!-- MCP Sub-Nav Tabs -->
+        <div class="flex gap-5 border-b border-gray-200 mb-6">
+          <button @click="selectGroup('access-groups')" :class="group==='access-groups' ? 'sub-nav-item-active' : 'sub-nav-item-idle'" class="sub-nav-item">Access Groups</button>
+          <button @click="selectGroup('agents')"        :class="group==='agents'        ? 'sub-nav-item-active' : 'sub-nav-item-idle'" class="sub-nav-item">Agents</button>
+          <button @click="selectGroup('roles')"         :class="group==='roles'         ? 'sub-nav-item-active' : 'sub-nav-item-idle'" class="sub-nav-item">Roles</button>
+          <button @click="selectGroup('keys')"          :class="group==='keys'          ? 'sub-nav-item-active' : 'sub-nav-item-idle'" class="sub-nav-item">Keys</button>
+        </div>
+
+        <!-- ══ ACCESS GROUPS ══ -->
+        <div x-show="group === 'access-groups'">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-muted">Access groups define which folders agents can read or write</p>
+            <button @click="selectState('groups-new')" class="btn-primary">
+              <i data-lucide="plus" class="w-4 h-4"></i> New Group
+            </button>
+          </div>
+          <div class="card">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  <th class="tbl-th">Name</th>
+                  <th class="tbl-th">Description</th>
+                  <th class="tbl-th">Folders</th>
+                  <th class="tbl-th">Members</th>
+                  <th class="tbl-th">Created</th>
+                  <th class="tbl-th w-24"></th>
+                </tr>
+              </thead>
+              <template x-for="grp in accessGroups" :key="grp.id">
+                <tbody>
+                  <tr class="tbl-tr">
+                    <td class="tbl-td font-medium text-gray-900" x-text="grp.name"></td>
+                    <td class="tbl-td text-gray-500" x-text="grp.description"></td>
+                    <td class="tbl-td"><span class="badge-muted" x-text="grp.folders + ' folders'"></span></td>
+                    <td class="tbl-td"><span class="badge-muted" x-text="grp.members + ' members'"></span></td>
+                    <td class="tbl-td text-gray-400" x-text="grp.created"></td>
+                    <td class="tbl-td">
+                      <div class="flex items-center gap-1">
+                        <button @click="pickerGroup = grp.name; selectState('groups-folders')" class="btn-icon" title="Manage folders"><i data-lucide="folder" class="w-3.5 h-3.5"></i></button>
+                        <button @click="editingGroup = { ...grp }; selectState('groups-edit')" class="btn-icon" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                        <button @click="deletingGroup = grp; selectState('groups-delete')" class="btn-icon" title="Delete"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-red-400"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </table>
+          </div>
+          <p class="text-faint mt-3" x-text="accessGroups.length + ' groups'"></p>
+
+          <!-- New Group modal -->
+          <div x-show="state === 'groups-new'" class="modal-overlay" @click.self="selectState('groups-list')">
+            <div class="modal-panel" @click.stop>
+              <div class="modal-header">
+                <h2 class="text-base font-semibold text-gray-900">New Access Group</h2>
+                <p class="text-xs text-gray-500 mt-0.5">Define a named set of folders agents can access</p>
+              </div>
+              <div class="modal-body space-y-4">
+                <div>
+                  <label class="label block mb-1.5">Name</label>
+                  <input x-model="newGroupName" type="text" class="input" placeholder="e.g., Engineering Docs, Public Notes" />
+                </div>
+                <div>
+                  <label class="label block mb-1.5">Description <span class="text-gray-400 font-normal">(optional)</span></label>
+                  <textarea x-model="newGroupDesc" class="textarea" rows="2" placeholder="What this group is used for"></textarea>
+                </div>
+                <p class="text-faint">You can assign folder access after creating the group.</p>
+              </div>
+              <div class="modal-footer">
+                <button @click="selectState('groups-list')" class="btn-outline">Cancel</button>
+                <button @click="selectState('groups-list')" class="btn-primary">Create Group</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit Group modal -->
+          <div x-show="state === 'groups-edit'" class="modal-overlay" @click.self="selectState('groups-list')">
+            <div class="modal-panel" @click.stop>
+              <div class="modal-header">
+                <h2 class="text-base font-semibold text-gray-900">Edit Access Group</h2>
+                <p class="text-xs text-gray-500 mt-0.5">Update group name or description</p>
+              </div>
+              <div class="modal-body space-y-4">
+                <div>
+                  <label class="label block mb-1.5">Name</label>
+                  <input x-model="editingGroup.name" type="text" class="input" />
+                </div>
+                <div>
+                  <label class="label block mb-1.5">Description <span class="text-gray-400 font-normal">(optional)</span></label>
+                  <textarea x-model="editingGroup.description" class="textarea" rows="2"></textarea>
+                </div>
+                <p class="text-faint">To change folder access, use the <i data-lucide="folder" class="w-3 h-3 inline-block align-middle"></i> Folders button on the group row.</p>
+              </div>
+              <div class="modal-footer">
+                <button @click="selectState('groups-list')" class="btn-outline">Cancel</button>
+                <button @click="selectState('groups-list')" class="btn-primary">Save Changes</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Delete Group confirm -->
+          <div x-show="state === 'groups-delete'" class="modal-overlay" @click.self="selectState('groups-list')">
+            <div class="modal-panel" @click.stop>
+              <div class="modal-header">
+                <h2 class="text-base font-semibold text-gray-900">Delete Group</h2>
+              </div>
+              <div class="modal-body">
+                <p class="text-sm text-gray-700">
+                  Delete <strong x-text="deletingGroup?.name"></strong>? All agent keys associated with this group will immediately stop working.
+                </p>
+              </div>
+              <div class="modal-footer">
+                <button @click="selectState('groups-list')" class="btn-outline">Cancel</button>
+                <button @click="selectState('groups-list')" class="btn-danger">Delete Group</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Folder Picker -->
+          <div x-show="state === 'groups-folders'" class="modal-overlay" @click.self="selectState('groups-list')">
+            <div class="modal-panel-lg" @click.stop>
+              <div class="modal-header">
+                <h2 class="text-base font-semibold text-gray-900">Manage Folder Access</h2>
+                <p class="text-xs text-gray-500 mt-0.5">Select which folders <strong x-text="pickerGroup"></strong> can access</p>
+              </div>
+              <div class="modal-body space-y-3">
+                <div class="flex items-center gap-2">
+                  <button @click="selectAllFolders()" class="btn-outline text-xs py-1">Select All</button>
+                  <button @click="clearAllFolders()" class="btn-outline text-xs py-1">Clear All</button>
+                  <span class="text-faint ml-auto" x-text="countSelectedFolders() + ' folders selected'"></span>
+                </div>
+                <div class="border border-gray-200 rounded-lg bg-gray-50 overflow-auto" style="max-height: 320px;">
+                  <div class="p-3 space-y-1">
+                    <template x-for="projName in Object.keys(folders)" :key="projName">
+                      <div>
+                        <!-- Project row -->
+                        <div class="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white">
+                          <div
+                            @click="toggleProj(projName)"
+                            class="w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer shrink-0 transition-colors"
+                            :class="folders[projName].selected ? 'bg-gray-900 border-gray-900' : (folders[projName].indeterminate ? 'bg-white border-gray-900' : 'bg-white border-gray-300')"
+                          >
+                            <i x-show="folders[projName].selected" data-lucide="check" class="w-2.5 h-2.5 text-white"></i>
+                            <div x-show="folders[projName].indeterminate && !folders[projName].selected" class="w-2 h-0.5 bg-gray-900 rounded"></div>
+                          </div>
+                          <button @click="folders[projName].expanded = !folders[projName].expanded" class="flex items-center gap-1.5 flex-1 text-left">
+                            <i :data-lucide="folders[projName].expanded ? 'chevron-down' : 'chevron-right'" class="w-3.5 h-3.5 text-gray-400"></i>
+                            <i data-lucide="folder-open" class="w-4 h-4 text-gray-500"></i>
+                            <span class="text-sm font-medium text-gray-800" x-text="projName"></span>
+                            <span class="text-faint ml-1" x-text="'(' + Object.keys(folders[projName].children).length + ')'"></span>
+                          </button>
+                        </div>
+                        <!-- Children -->
+                        <div x-show="folders[projName].expanded" class="pl-8 space-y-0.5 mt-0.5">
+                          <template x-for="childName in Object.keys(folders[projName].children)" :key="childName">
+                            <div class="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-white cursor-pointer" @click="toggleChild(projName, childName)">
+                              <div
+                                class="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors"
+                                :class="folders[projName].children[childName].selected ? 'bg-gray-900 border-gray-900' : 'bg-white border-gray-300'"
+                              >
+                                <i x-show="folders[projName].children[childName].selected" data-lucide="check" class="w-2.5 h-2.5 text-white"></i>
+                              </div>
+                              <i data-lucide="folder" class="w-3.5 h-3.5 text-gray-400"></i>
+                              <span class="text-sm text-gray-700" x-text="childName"></span>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button @click="selectState('groups-list')" class="btn-outline">Cancel</button>
+                <button @click="selectState('groups-list')" class="btn-primary">Save Changes</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ══ AGENTS ══ -->
+        <div x-show="group === 'agents'">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-muted">Agents are named identities that can authenticate to the MCP server</p>
+            <button @click="selectState('agents-new')" class="btn-primary">
+              <i data-lucide="plus" class="w-4 h-4"></i> New Agent
+            </button>
+          </div>
+          <div class="card">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  <th class="tbl-th">Name</th>
+                  <th class="tbl-th">Description</th>
+                  <th class="tbl-th">Groups</th>
+                  <th class="tbl-th">Created</th>
+                  <th class="tbl-th w-16"></th>
+                </tr>
+              </thead>
+              <template x-for="ag in agents" :key="ag.id">
+                <tbody>
+                  <tr class="tbl-tr">
+                    <td class="tbl-td font-medium text-gray-900" x-text="ag.name"></td>
+                    <td class="tbl-td text-gray-500" x-text="ag.description"></td>
+                    <td class="tbl-td"><span class="badge-muted" x-text="ag.groups + ' groups'"></span></td>
+                    <td class="tbl-td text-gray-400" x-text="ag.created"></td>
+                    <td class="tbl-td">
+                      <div class="flex items-center gap-1">
+                        <button class="btn-icon" title="Edit"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                        <button class="btn-icon" title="Delete"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-red-400"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </table>
+          </div>
+          <p class="text-faint mt-3" x-text="agents.length + ' agents'"></p>
+
+          <!-- New Agent modal -->
+          <div x-show="state === 'agents-new'" class="modal-overlay" @click.self="selectState('agents-list')">
+            <div class="modal-panel" @click.stop>
+              <div class="modal-header">
+                <h2 class="text-base font-semibold text-gray-900">New Agent</h2>
+                <p class="text-xs text-gray-500 mt-0.5">Create a named identity for an AI agent</p>
+              </div>
+              <div class="modal-body space-y-4">
+                <div>
+                  <label class="label block mb-1.5">Name</label>
+                  <input x-model="newAgentName" type="text" class="input" placeholder="e.g., Claude Code, Cursor, CI Pipeline" />
+                </div>
+                <div>
+                  <label class="label block mb-1.5">Description <span class="text-gray-400 font-normal">(optional)</span></label>
+                  <textarea x-model="newAgentDescription" class="textarea" rows="3" placeholder="Purpose or notes about this agent"></textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button @click="selectState('agents-list')" class="btn-outline">Cancel</button>
+                <button @click="selectState('agents-list')" class="btn-primary">Create Agent</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ══ ROLES ══ -->
+        <div x-show="group === 'roles'">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-muted">Roles define which MCP tools an agent can use (1:1 mapping to tool names)</p>
+            <button @click="selectState('roles-new')" class="btn-primary">
+              <i data-lucide="plus" class="w-4 h-4"></i> New Role
+            </button>
+          </div>
+          <div class="card">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  <th class="tbl-th">Name</th>
+                  <th class="tbl-th">Description</th>
+                  <th class="tbl-th">Permissions</th>
+                  <th class="tbl-th">Used by</th>
+                  <th class="tbl-th w-16"></th>
+                </tr>
+              </thead>
+              <template x-for="rl in roles" :key="rl.id">
+                <tbody>
+                  <tr class="tbl-tr">
+                    <td class="tbl-td font-medium text-gray-900" x-text="rl.name"></td>
+                    <td class="tbl-td text-gray-500" x-text="rl.description"></td>
+                    <td class="tbl-td">
+                      <div class="flex flex-wrap gap-1">
+                        <template x-for="p in rl.perms.slice(0, 3)" :key="p">
+                          <span class="badge-muted font-mono" x-text="p"></span>
+                        </template>
+                        <span x-show="rl.perms.length > 3" class="badge-muted text-gray-400" x-text="'+' + (rl.perms.length - 3) + ' more'"></span>
+                      </div>
+                    </td>
+                    <td class="tbl-td"><span class="badge-muted" x-text="rl.memberships + ' keys'"></span></td>
+                    <td class="tbl-td">
+                      <div class="flex items-center gap-1">
+                        <button class="btn-icon"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                        <button class="btn-icon"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-red-400"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </table>
+          </div>
+          <p class="text-faint mt-3" x-text="roles.length + ' roles'"></p>
+
+          <!-- New Role modal -->
+          <div x-show="state === 'roles-new'" class="modal-overlay" @click.self="selectState('roles-list')">
+            <div class="bg-white rounded-xl shadow-xl z-50 w-full max-w-lg mx-4 overflow-hidden" @click.stop>
+              <div class="modal-header">
+                <h2 class="text-base font-semibold text-gray-900">New Role</h2>
+                <p class="text-xs text-gray-500 mt-0.5">Define which MCP tools agents with this role can use</p>
+              </div>
+              <div class="modal-body space-y-4">
+                <div>
+                  <label class="label block mb-1.5">Name</label>
+                  <input x-model="newRoleName" type="text" class="input" placeholder="e.g., Explorer, Content Writer, Full Access" />
+                </div>
+                <div>
+                  <label class="label block mb-1.5">Description <span class="text-gray-400 font-normal">(optional)</span></label>
+                  <input x-model="newRoleDesc" type="text" class="input" placeholder="What this role allows agents to do" />
+                </div>
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="label">Permissions</label>
+                    <div class="flex gap-1.5">
+                      <button @click="Object.entries(rolePerms).forEach(([c]) => Object.keys(rolePerms[c].perms).forEach(k => rolePerms[c].perms[k] = true))" class="btn-outline text-xs py-1">All</button>
+                      <button @click="Object.entries(rolePerms).forEach(([c]) => Object.keys(rolePerms[c].perms).forEach(k => rolePerms[c].perms[k] = false))" class="btn-outline text-xs py-1">None</button>
+                    </div>
+                  </div>
+                  <div class="border border-gray-200 rounded-lg overflow-auto bg-gray-50" style="max-height: 220px;">
+                    <div class="p-3 space-y-4">
+                      <template x-for="catKey in Object.keys(rolePerms)" :key="catKey">
+                        <div>
+                          <div class="flex items-center gap-2 mb-2">
+                            <div
+                              @click="toggleCat(catKey)"
+                              class="w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer shrink-0 transition-colors"
+                              :class="allPerms(catKey) ? 'bg-gray-900 border-gray-900' : (somePerms(catKey) ? 'bg-white border-gray-900' : 'bg-white border-gray-300')"
+                            >
+                              <i x-show="allPerms(catKey)" data-lucide="check" class="w-2.5 h-2.5 text-white"></i>
+                              <div x-show="somePerms(catKey) && !allPerms(catKey)" class="w-2 h-0.5 bg-gray-900 rounded"></div>
+                            </div>
+                            <span class="text-xs font-semibold text-gray-700" x-text="rolePerms[catKey].label"></span>
+                          </div>
+                          <div class="ml-6 space-y-1.5">
+                            <template x-for="permKey in Object.keys(rolePerms[catKey].perms)" :key="permKey">
+                              <div class="flex items-center gap-2 cursor-pointer" @click="rolePerms[catKey].perms[permKey] = !rolePerms[catKey].perms[permKey]">
+                                <div
+                                  class="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors"
+                                  :class="rolePerms[catKey].perms[permKey] ? 'bg-gray-900 border-gray-900' : 'bg-white border-gray-300'"
+                                >
+                                  <i x-show="rolePerms[catKey].perms[permKey]" data-lucide="check" class="w-2.5 h-2.5 text-white"></i>
+                                </div>
+                                <span class="text-xs text-gray-600 font-mono" x-text="permKey"></span>
+                              </div>
+                            </template>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button @click="selectState('roles-list')" class="btn-outline">Cancel</button>
+                <button @click="selectState('roles-list')" class="btn-primary">Create Role</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ══ KEYS ══ -->
+        <div x-show="group === 'keys'">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-muted">Each key grants an agent access to one group with one role</p>
+            <button @click="selectState('keys-issue')" class="btn-primary">
+              <i data-lucide="key" class="w-4 h-4"></i> Issue Key
+            </button>
+          </div>
+          <div class="card">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  <th class="tbl-th">Agent</th>
+                  <th class="tbl-th">Access Group</th>
+                  <th class="tbl-th">Role</th>
+                  <th class="tbl-th">Key Prefix</th>
+                  <th class="tbl-th">Last Used</th>
+                  <th class="tbl-th w-12"></th>
+                </tr>
+              </thead>
+              <template x-for="mk in membershipKeys" :key="mk.id">
+                <tbody>
+                  <tr class="tbl-tr">
+                    <td class="tbl-td font-medium text-gray-900" x-text="mk.agent"></td>
+                    <td class="tbl-td text-gray-600" x-text="mk.group"></td>
+                    <td class="tbl-td"><span class="badge-muted" x-text="mk.roleName"></span></td>
+                    <td class="tbl-td"><span class="text-mono bg-gray-100 px-2 py-0.5 rounded" x-text="mk.prefix"></span></td>
+                    <td class="tbl-td text-gray-400" x-text="mk.lastUsed"></td>
+                    <td class="tbl-td">
+                      <button @click="revokingEntry = mk; selectState('keys-delete')" class="btn-icon" title="Delete key"><i data-lucide="trash-2" class="w-3.5 h-3.5 text-red-400"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </table>
+          </div>
+          <p class="text-faint mt-3" x-text="membershipKeys.length + ' keys'"></p>
+
+          <!-- Issue Key — Step 1 -->
+          <div x-show="state === 'keys-issue'" class="modal-overlay" @click.self="selectState('keys-list')">
+            <div class="modal-panel" @click.stop>
+              <div class="modal-header">
+                <h2 class="text-base font-semibold text-gray-900">Issue Agent Key</h2>
+                <p class="text-xs text-gray-500 mt-0.5">Grant an agent access to a group with a specific role</p>
+              </div>
+              <div class="modal-body space-y-4">
+                <div>
+                  <label class="label block mb-1.5">Agent</label>
+                  <select x-model="keyAgent" class="select">
+                    <option value="">Choose an agent…</option>
+                    <template x-for="ag in agents" :key="ag.id">
+                      <option :value="ag.name" x-text="ag.name"></option>
+                    </template>
+                  </select>
+                </div>
+                <div>
+                  <label class="label block mb-1.5">Access Group</label>
+                  <select x-model="keyGroup" class="select">
+                    <option value="">Choose a group…</option>
+                    <template x-for="grp in accessGroups" :key="grp.id">
+                      <option :value="grp.name" x-text="grp.name"></option>
+                    </template>
+                  </select>
+                </div>
+                <div>
+                  <label class="label block mb-1.5">Role</label>
+                  <select x-model="keyRole" class="select">
+                    <option value="">Choose a role…</option>
+                    <template x-for="rl in roles" :key="rl.id">
+                      <option :value="rl.name" x-text="rl.name + ' — ' + rl.perms.length + ' permissions'"></option>
+                    </template>
+                  </select>
+                </div>
+                <div x-show="keyRole" class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2.5">
+                  <p class="text-faint mb-1.5">Permissions granted:</p>
+                  <div class="flex flex-wrap gap-1">
+                    <template x-for="rl in roles.filter(r => r.name === keyRole)" :key="rl.id">
+                      <template x-for="p in rl.perms" :key="p">
+                        <span class="badge-muted font-mono text-gray-500" x-text="p"></span>
+                      </template>
+                    </template>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button @click="selectState('keys-list')" class="btn-outline">Cancel</button>
+                <button @click="issueKey()" class="btn-primary">
+                  <i data-lucide="key" class="w-4 h-4"></i> Generate Key
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Issue Key — Step 2: one-time key display -->
+          <div x-show="state === 'keys-result'" class="modal-overlay" @click.self="selectState('keys-list')">
+            <div class="modal-panel" @click.stop>
+              <div class="modal-header">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
+                    <i data-lucide="check" class="w-4 h-4 text-emerald-600"></i>
+                  </div>
+                  <div>
+                    <h2 class="text-base font-semibold text-gray-900">Key Generated</h2>
+                    <p class="text-xs text-gray-500">Copy this key now — it won't be shown again</p>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-body space-y-4">
+                <div class="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-start gap-2.5">
+                  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+                  <p class="text-xs text-amber-800 leading-relaxed">
+                    <strong>This is your only chance to copy this key.</strong> Once you close this dialog, the full key will no longer be accessible. Store it securely.
+                  </p>
+                </div>
+                <div class="bg-gray-50 border border-gray-200 rounded-md px-4 py-3 space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-faint">Agent</span>
+                    <span class="text-sm font-medium" x-text="keyAgent || 'Claude Code'"></span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-faint">Group</span>
+                    <span class="text-sm" x-text="keyGroup || 'Engineering Docs'"></span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-faint">Role</span>
+                    <span class="text-sm" x-text="keyRole || 'Read Only'"></span>
+                  </div>
+                </div>
+                <div>
+                  <label class="label block mb-1.5">Agent Key</label>
+                  <div class="relative">
+                    <div class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2.5 pr-20 font-mono text-xs text-gray-800 break-all leading-relaxed" x-text="generatedKey"></div>
+                    <button class="absolute right-2 top-2 btn-outline text-xs py-1 px-2 gap-1">
+                      <i data-lucide="copy" class="w-3 h-3"></i> Copy
+                    </button>
+                  </div>
+                </div>
+                <p class="text-faint">Add this to your MCP client config as the <code class="bg-gray-100 px-1 rounded">Authorization: Bearer</code> value.</p>
+              </div>
+              <div class="modal-footer">
+                <button @click="selectState('keys-list')" class="btn-primary">Done</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Delete Key confirm -->
+          <div x-show="state === 'keys-delete'" class="modal-overlay" @click.self="selectState('keys-list')">
+            <div class="modal-panel" @click.stop>
+              <div class="modal-header">
+                <h2 class="text-base font-semibold text-gray-900">Delete Key</h2>
+              </div>
+              <div class="modal-body">
+                <p class="text-sm text-gray-700">
+                  Delete the key for <strong x-text="revokingEntry?.agent"></strong> in
+                  <strong x-text="revokingEntry?.group"></strong>? The agent will immediately lose access.
+                  Issue a new key to restore access.
+                </p>
+              </div>
+              <div class="modal-footer">
+                <button @click="selectState('keys-list')" class="btn-outline">Cancel</button>
+                <button @click="doDelete()" class="btn-danger">Delete Key</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+
+    </div>
+
+    <script>
+      document.addEventListener("alpine:initialized", () => {
+        lucide.createIcons();
+        let pending = false;
+        const observer = new MutationObserver(() => {
+          if (pending) return;
+          pending = true;
+          requestAnimationFrame(() => { lucide.createIcons(); pending = false; });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+      });
+    </script>
+  </body>
+</html>

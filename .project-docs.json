@@ -1,0 +1,27 @@
+{
+  "docsRoot": "docs",
+  "version": "9.2.0",
+  "lint": {
+    "adopting": false,
+    "exclude": [],
+    "durable": [
+      "architecture",
+      "specifications",
+      "interaction-design",
+      "playbooks"
+    ],
+    "workbench": [
+      "features",
+      "items",
+      "cycles"
+    ],
+    "skip": [],
+    "scopes": [
+      "agent-bridge",
+      "hivemind",
+      "operator",
+      "recipes",
+      "toolbox"
+    ]
+  }
+}

@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mockup — [Feature Name]</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
+
+    <!--
+      ============================================================
+      THEME
+      Semantic classes built on Tailwind utilities via @apply.
+      Change the color palette here to match the target project's
+      design system; the markup below stays readable and consistent.
+
+      Default: dark theme (slate-950 base).
+      For light themes: adjust base/surface/text colors throughout.
+      ============================================================
+    -->
+    <style type="text/tailwindcss">
+      /* ---- Base ---- */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* ---- Typography ---- */
+      .page-title {
+        @apply text-2xl font-bold text-white;
+      }
+      .section-title {
+        @apply text-xs font-semibold text-slate-400 uppercase tracking-wide;
+      }
+      .label {
+        @apply text-xs text-slate-500;
+      }
+      .text-body {
+        @apply text-sm text-slate-200 leading-relaxed;
+      }
+      .text-muted {
+        @apply text-sm text-slate-400;
+      }
+      .text-faint {
+        @apply text-xs text-slate-500;
+      }
+      .text-mono {
+        @apply text-xs text-slate-600 font-mono;
+      }
+      .link {
+        @apply text-sm text-blue-400 hover:text-blue-300 transition-colors;
+      }
+
+      /* ---- Surfaces ---- */
+      .card {
+        @apply bg-slate-900 border border-slate-800 rounded-lg overflow-hidden;
+      }
+      .inset {
+        @apply bg-slate-950 border border-slate-800 rounded-md;
+      }
+      .panel-section {
+        @apply px-5 py-4 border-b border-slate-800;
+      }
+
+      /* ---- Badges ---- */
+      .badge {
+        @apply text-xs px-2 py-0.5 rounded border font-medium;
+      }
+      .badge-accent {
+        @apply badge bg-blue-500/10 text-blue-300 border-blue-500/20;
+      }
+      .badge-muted {
+        @apply badge bg-slate-700/50 text-slate-300 border-slate-600;
+      }
+      .badge-warning {
+        @apply badge bg-amber-500/20 text-amber-400 border-amber-500/30;
+      }
+
+      /* ---- Status indicators ---- */
+      .status-dot {
+        @apply w-2 h-2 rounded-full shrink-0;
+      }
+      .status-dot-open {
+        @apply status-dot bg-amber-400;
+      }
+      .status-dot-success {
+        @apply status-dot bg-emerald-400;
+      }
+
+      /* ---- Buttons ---- */
+      .btn {
+        @apply text-sm px-4 py-2 rounded-md font-medium transition-colors
+               flex items-center justify-center gap-2;
+      }
+      .btn-primary {
+        @apply btn bg-emerald-600 text-white hover:bg-emerald-500;
+      }
+      .btn-outline {
+        @apply btn border border-slate-700 text-slate-300 hover:bg-slate-800;
+      }
+      .btn-ghost {
+        @apply text-xs px-3 py-2 rounded-md border border-slate-800
+               text-slate-500 hover:text-slate-300 hover:border-slate-700
+               transition-colors flex items-center justify-center gap-2;
+      }
+      .btn-icon {
+        @apply text-slate-500 hover:text-white transition-colors;
+      }
+
+      /* ---- Form controls ---- */
+      .input {
+        @apply bg-slate-900 border border-slate-700 text-sm text-white
+               px-3 py-2 rounded-md placeholder-slate-500
+               focus:outline-none focus:border-slate-500;
+      }
+      .select {
+        @apply input cursor-pointer text-slate-300;
+      }
+      .textarea {
+        @apply w-full bg-slate-950 border border-slate-800 text-sm text-white
+               px-3 py-2 rounded-md placeholder-slate-600
+               focus:outline-none focus:border-slate-600 resize-none;
+      }
+
+      /* ---- Form validation ---- */
+      .input-error {
+        @apply border-red-500/50 focus:border-red-500/70;
+      }
+      .field-error {
+        @apply text-xs text-red-400;
+      }
+
+      /* ---- Alerts ---- */
+      .alert-error {
+        @apply rounded-md bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400;
+      }
+      .alert-success {
+        @apply rounded-md bg-emerald-500/10 border border-emerald-500/20 p-3 text-sm text-emerald-400;
+      }
+      .alert-info {
+        @apply rounded-md bg-slate-800 border border-slate-700 p-3 text-sm text-slate-300;
+      }
+      .alert-warning {
+        @apply rounded-md bg-amber-500/10 border border-amber-500/20 p-3 text-sm text-amber-400;
+      }
+
+      /* ---- Navigation ---- */
+      .nav-item {
+        @apply w-full flex items-center gap-3 px-3 py-2 rounded-md
+               text-sm font-medium transition-colors;
+      }
+      .nav-item-active {
+        @apply bg-slate-800 text-white;
+      }
+      .nav-item-inactive {
+        @apply text-slate-400 hover:text-white hover:bg-slate-800/50;
+      }
+
+      /* ---- Utilities ---- */
+      .filter-pill {
+        @apply inline-flex items-center gap-1 text-xs bg-slate-800
+               text-slate-300 border border-slate-700 px-2 py-0.5 rounded;
+      }
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          #1e293b 25%,
+          #334155 50%,
+          #1e293b 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+        border-radius: 4px;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+    </style>
+
+    <!--
+      ============================================================
+      APP STATE
+      Two-level switcher: group (tab) + state (sub-state).
+
+      selectGroup(id) — switches the active tab and resets to the
+        group's first state.
+      selectState(id) — switches the sub-state within the current
+        group. Add per-state setup logic here (e.g. pre-filling a
+        selected item) instead of using $watch.
+
+      Content sections:
+        x-show="group === 'X'"       — show when tab is active
+        x-show="state === 'Y'"       — show specific sub-state
+      Modals inside a group section can't bleed into other groups.
+      ============================================================
+    -->
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.data("app", () => ({
+          group: "group-one",
+          state: "state-1a",
+
+          groups: [
+            {
+              id: "group-one",
+              label: "Group One",
+              states: [
+                { id: "state-1a", label: "1 · Default" },
+                { id: "state-1b", label: "2 · State B" },
+              ],
+            },
+            {
+              id: "group-two",
+              label: "Group Two",
+              states: [
+                { id: "state-2a", label: "3 · Default" },
+                { id: "state-2b", label: "4 · State B" },
+                { id: "state-2c", label: "5 · State C" },
+              ],
+            },
+            {
+              id: "group-three",
+              label: "Group Three",
+              states: [
+                { id: "state-3a", label: "6 · Default" },
+                { id: "state-3b", label: "7 · State B" },
+              ],
+            },
+          ],
+
+          get activeGroup() {
+            return this.groups.find((g) => g.id === this.group);
+          },
+
+          selectGroup(groupId) {
+            this.group = groupId;
+            const g = this.groups.find((g) => g.id === groupId);
+            this.state = g.states[0].id;
+          },
+
+          selectState(stateId) {
+            this.state = stateId;
+            // TODO: Add per-state setup logic here if needed.
+            // Put it here instead of using $watch to avoid reactive cascades.
+            // Example:
+            //   if (stateId === 'state-2b') this.selectedItem = this.items[0];
+          },
+
+          // TODO: Add your state properties and sample data here
+        }));
+      });
+    </script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+  </head>
+
+  <body class="bg-slate-950 text-slate-200 min-h-screen">
+    <div x-data="app">
+
+      <!-- ============================================================
+           STATE SWITCHER — two-level amber prototype chrome
+           Row 1: group tabs
+           Row 2: state buttons for the active group only
+           ============================================================ -->
+      <div class="sticky top-0 z-50 bg-amber-950/60 border-b border-amber-800/40">
+
+        <!-- Row 1: group tabs -->
+        <div class="px-4 pt-2 pb-0 flex items-center gap-1">
+          <span class="section-title text-amber-500 pr-2">Prototype</span>
+          <template x-for="g in groups" :key="g.id">
+            <button
+              @click="selectGroup(g.id)"
+              :class="group === g.id
+                ? 'bg-amber-700/60 text-amber-100 border-amber-600/60'
+                : 'text-amber-400/70 border-transparent hover:text-amber-300 hover:bg-amber-800/30'"
+              class="text-xs px-3 py-1.5 rounded-t border border-b-0 font-medium transition-colors"
+              x-text="g.label"
+            ></button>
+          </template>
+        </div>
+
+        <!-- Row 2: state buttons for active group -->
+        <div class="px-4 py-1.5 flex items-center gap-1.5 bg-amber-900/30">
+          <template x-for="s in activeGroup.states" :key="s.id">
+            <button
+              @click="selectState(s.id)"
+              :class="state === s.id
+                ? 'bg-amber-600 text-white border-amber-600'
+                : 'bg-slate-800 text-slate-300 border-slate-600 hover:border-slate-400 hover:text-slate-100'"
+              class="text-xs px-2.5 py-1 rounded border font-medium transition-colors"
+              x-text="s.label"
+            ></button>
+          </template>
+        </div>
+
+      </div>
+
+      <!--
+        ============================================================
+        CONTENT AREA — blank canvas
+        One <div x-show="group === 'X'"> per group.
+        State-specific content and modals go inside the group div.
+        ============================================================
+      -->
+      <div class="p-8">
+
+        <!-- Group One -->
+        <div x-show="group === 'group-one'">
+          <div x-show="state === 'state-1a'">
+            <h1 class="page-title mb-4">Group One — Default</h1>
+            <p class="text-muted">Replace with your prototype content.</p>
+          </div>
+          <div x-show="state === 'state-1b'">
+            <h1 class="page-title mb-4">Group One — State B</h1>
+            <p class="text-muted">Replace with your prototype content.</p>
+          </div>
+        </div>
+
+        <!-- Group Two -->
+        <div x-show="group === 'group-two'">
+          <div x-show="state === 'state-2a'">
+            <h1 class="page-title mb-4">Group Two — Default</h1>
+            <p class="text-muted">Replace with your prototype content.</p>
+          </div>
+          <div x-show="state === 'state-2b'">
+            <h1 class="page-title mb-4">Group Two — State B</h1>
+            <p class="text-muted">Replace with your prototype content.</p>
+          </div>
+          <div x-show="state === 'state-2c'">
+            <h1 class="page-title mb-4">Group Two — State C</h1>
+            <p class="text-muted">Replace with your prototype content.</p>
+          </div>
+        </div>
+
+        <!-- Group Three -->
+        <div x-show="group === 'group-three'">
+          <div x-show="state === 'state-3a'">
+            <h1 class="page-title mb-4">Group Three — Default</h1>
+            <p class="text-muted">Replace with your prototype content.</p>
+          </div>
+          <div x-show="state === 'state-3b'">
+            <h1 class="page-title mb-4">Group Three — State B</h1>
+            <p class="text-muted">Replace with your prototype content.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Initialize Lucide icons with Alpine-aware refresh -->
+    <script>
+      document.addEventListener("alpine:initialized", () => {
+        lucide.createIcons();
+        let pending = false;
+        const observer = new MutationObserver(() => {
+          if (pending) return;
+          pending = true;
+          requestAnimationFrame(() => {
+            lucide.createIcons();
+            pending = false;
+          });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+      });
+    </script>
+  </body>
+</html>

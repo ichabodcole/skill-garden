@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pattern Reference — Tables with x-for</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style type="text/tailwindcss">
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; @apply bg-slate-950 text-slate-200 p-8; }
+      h1   { @apply text-xl font-bold text-white mb-1; }
+      h2   { @apply text-sm font-semibold text-amber-400 uppercase tracking-wide mt-8 mb-2; }
+      p    { @apply text-sm text-slate-400 mb-4 leading-relaxed; }
+      pre  { @apply text-xs bg-slate-900 border border-slate-700 rounded p-4 overflow-x-auto mb-4 text-slate-300; }
+      table { @apply w-full text-sm; }
+      th    { @apply text-left text-xs font-semibold text-slate-400 uppercase tracking-wide px-3 py-2 border-b border-slate-700; }
+      td    { @apply px-3 py-2 border-b border-slate-800 text-slate-200; }
+      .badge { @apply text-xs px-2 py-0.5 rounded-full; }
+    </style>
+  </head>
+  <body>
+    <h1>Pattern Reference: Tables with <code class="text-amber-300">x-for</code></h1>
+    <p class="text-slate-400 text-sm mt-1">
+      Two patterns that trip up Alpine.js inside <code>&lt;table&gt;</code> elements.
+      Scroll down to see working live demos.
+    </p>
+
+    <!-- ============================================================
+         PATTERN 1: x-for IN A TABLE
+         ============================================================ -->
+
+    <h2>Pattern 1 — <code>x-for</code> inside a table</h2>
+
+    <p>
+      <strong class="text-red-400">Problem:</strong> Placing <code>&lt;template x-for&gt;</code>
+      inside <code>&lt;tbody&gt;</code> causes an <code>importNode</code> TypeError. The browser's
+      HTML parser strips <code>&lt;template&gt;</code> tags when it encounters them inside
+      <code>&lt;tbody&gt;</code>, so Alpine gets a null <code>template.content</code>.
+    </p>
+
+    <pre>
+&lt;!-- ❌ WRONG — importNode TypeError --&gt;
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;template x-for="item in items"&gt;
+      &lt;tr&gt; ... &lt;/tr&gt;
+    &lt;/template&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;</pre>
+
+    <p>
+      <strong class="text-green-400">Fix:</strong> Wrap the <code>&lt;tbody&gt;</code>
+      <em>inside</em> the <code>x-for</code> template instead. A <code>&lt;table&gt;</code>
+      can have multiple <code>&lt;tbody&gt;</code> elements — this is valid HTML.
+    </p>
+
+    <pre>
+&lt;!-- ✅ CORRECT — each iteration gets its own &lt;tbody&gt; --&gt;
+&lt;table&gt;
+  &lt;thead&gt; ... &lt;/thead&gt;
+  &lt;template x-for="item in items" :key="item.id"&gt;
+    &lt;tbody&gt;
+      &lt;tr&gt; ... &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/template&gt;
+&lt;/table&gt;</pre>
+
+    <p>Live demo — 3 rows rendered via <code>x-for</code> using the correct pattern:</p>
+
+    <div x-data="tableDemo1">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <template x-for="user in users" :key="user.id">
+          <tbody>
+            <tr>
+              <td x-text="user.name"></td>
+              <td x-text="user.role"></td>
+              <td>
+                <span class="badge"
+                  :class="user.active ? 'bg-green-900 text-green-300' : 'bg-slate-800 text-slate-400'"
+                  x-text="user.active ? 'Active' : 'Inactive'">
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </template>
+      </table>
+    </div>
+
+    <!-- ============================================================
+         PATTERN 2: Object.keys() vs Object.entries() in x-for
+         ============================================================ -->
+
+    <h2>Pattern 2 — Iterating objects with <code>x-for</code></h2>
+
+    <p>
+      <strong class="text-red-400">Problem:</strong> Using <code>Object.entries()</code>
+      with array destructuring in <code>x-for</code> causes "X is not defined" ReferenceErrors.
+      Alpine evaluates the loop variable expression in a scope where destructured variable names
+      aren't available.
+    </p>
+
+    <pre>
+&lt;!-- ❌ WRONG — "[key, val] in Object.entries(obj)" causes ReferenceError --&gt;
+&lt;template x-for="[key, val] in Object.entries(permissions)"&gt;
+  &lt;div x-text="key"&gt;&lt;/div&gt;
+  &lt;div x-text="val.label"&gt;&lt;/div&gt;
+&lt;/template&gt;</pre>
+
+    <p>
+      <strong class="text-green-400">Fix:</strong> Iterate <code>Object.keys()</code> and
+      access values via bracket notation inside the template.
+    </p>
+
+    <pre>
+&lt;!-- ✅ CORRECT — iterate keys, access values via bracket notation --&gt;
+&lt;template x-for="key in Object.keys(permissions)"&gt;
+  &lt;div x-text="key"&gt;&lt;/div&gt;
+  &lt;div x-text="permissions[key].label"&gt;&lt;/div&gt;
+&lt;/template&gt;</pre>
+
+    <p>Live demo — permission list rendered via <code>Object.keys()</code>:</p>
+
+    <div x-data="tableDemo2">
+      <table>
+        <thead>
+          <tr>
+            <th>Permission</th>
+            <th>Label</th>
+            <th>Default</th>
+          </tr>
+        </thead>
+        <template x-for="key in Object.keys(permissions)" :key="key">
+          <tbody>
+            <tr>
+              <td><code class="text-xs text-amber-300" x-text="key"></code></td>
+              <td x-text="permissions[key].label"></td>
+              <td>
+                <span class="badge"
+                  :class="permissions[key].default ? 'bg-blue-900 text-blue-300' : 'bg-slate-800 text-slate-400'"
+                  x-text="permissions[key].default ? 'On' : 'Off'">
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </template>
+      </table>
+    </div>
+
+    <!-- ============================================================
+         ALPINE DATA
+         ============================================================ -->
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.data("tableDemo1", () => ({
+          users: [
+            { id: 1, name: "Alice Chen",    role: "Admin",  active: true  },
+            { id: 2, name: "Bob Marcello",  role: "Editor", active: true  },
+            { id: 3, name: "Carol Darvish", role: "Viewer", active: false },
+          ],
+        }));
+
+        Alpine.data("tableDemo2", () => ({
+          permissions: {
+            read_documents:   { label: "Read documents",   default: true  },
+            write_documents:  { label: "Write documents",  default: true  },
+            delete_documents: { label: "Delete documents", default: false },
+            manage_groups:    { label: "Manage groups",    default: false },
+          },
+        }));
+      });
+    </script>
+  </body>
+</html>

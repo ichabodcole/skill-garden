@@ -1,0 +1,11 @@
+{
+  "name": "operator",
+  "version": "1.2.0",
+  "description": "Operator Editor integration for the project-docs workflow — authenticate to the Operator MCP server (operator-setup) and triage Operator documents into the docs pipeline (operator-triage)",
+  "author": {
+    "name": "Cole Reed"
+  },
+  "homepage": "https://github.com/ichabodcole/skill-garden",
+  "repository": "https://github.com/ichabodcole/skill-garden",
+  "license": "MIT"
+}

@@ -1,0 +1,1104 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Component Reference — HTML Mockup Prototyping</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script>
+      tailwind.config = { darkMode: "class" };
+    </script>
+
+    <!--
+      ============================================================
+      Reusable component patterns for HTML mockup prototyping.
+      Copy the markup + CSS classes you need into your mockup.
+
+      Each section is self-contained: theme classes at top,
+      interactive demos below. Open in a browser to see them live.
+
+      Theme toggle (sun/moon) demonstrates that semantic classes
+      abstract the color system — when all markup uses semantic
+      classes, switching themes means only rewriting @apply defs.
+      ============================================================
+    -->
+    <style type="text/tailwindcss">
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      /* ---- Typography ---- */
+      .page-title    { @apply text-2xl font-bold text-gray-900 dark:text-white; }
+      .section-title { @apply text-xs font-semibold text-gray-400 dark:text-slate-400 uppercase tracking-wide; }
+      .label         { @apply text-xs text-gray-500 dark:text-slate-500; }
+      .text-muted    { @apply text-sm text-gray-500 dark:text-slate-400; }
+      .text-faint    { @apply text-xs text-gray-400 dark:text-slate-500; }
+
+      /* ---- Surfaces ---- */
+      .card  { @apply bg-white border border-gray-200 dark:bg-slate-900 dark:border-slate-800 rounded-lg overflow-hidden; }
+      .inset { @apply bg-gray-50 border border-gray-200 dark:bg-slate-950 dark:border-slate-800 rounded-md; }
+
+      /* ---- Badges ---- */
+      .badge       { @apply text-xs px-2 py-0.5 rounded border font-medium; }
+      .badge-muted { @apply badge bg-gray-100 text-gray-600 border-gray-200 dark:bg-slate-700/50 dark:text-slate-300 dark:border-slate-600; }
+
+      /* ---- Buttons ---- */
+      .btn             { @apply text-sm px-4 py-2 rounded-md font-medium transition-colors flex items-center justify-center gap-2; }
+      .btn-primary     { @apply btn bg-emerald-600 text-white hover:bg-emerald-500; }
+      .btn-outline     { @apply btn border border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800; }
+      .btn-destructive { @apply btn bg-red-600 text-white hover:bg-red-500; }
+      .btn-icon        { @apply text-gray-400 hover:text-gray-700 dark:text-slate-500 dark:hover:text-white transition-colors; }
+
+      /* ---- Form controls ---- */
+      .input       { @apply w-full bg-white border border-gray-200 text-sm text-gray-900 dark:bg-slate-900 dark:border-slate-700 dark:text-white px-3 py-2 rounded-md placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:border-gray-400 dark:focus:border-slate-500; }
+      .input-error { @apply border-red-500/50 focus:border-red-500/70; }
+      .field-error { @apply text-xs text-red-400; }
+
+      /* ============================================================
+         COMPONENT CLASSES
+         Copy these into your mockup's theme block as needed.
+         ============================================================ */
+
+      /* ---- Toggle Group / Segmented Control ---- */
+      .toggle-group    { @apply inline-flex rounded-md border border-gray-200 dark:border-slate-700 overflow-hidden; }
+      .toggle-item     { @apply text-xs px-3 py-1.5 font-medium transition-colors border-r border-gray-200 dark:border-slate-700 last:border-r-0; }
+      .toggle-active   { @apply bg-gray-200 text-gray-900 dark:bg-slate-700 dark:text-white; }
+      .toggle-inactive { @apply bg-white text-gray-500 hover:text-gray-900 hover:bg-gray-50 dark:bg-slate-900 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800; }
+
+      /* ---- Switch / Toggle ---- */
+      .switch     { @apply relative w-9 h-5 rounded-full cursor-pointer transition-colors; }
+      .switch-on  { @apply bg-blue-600; }
+      .switch-off { @apply bg-gray-300 dark:bg-slate-700; }
+      .switch-dot { @apply absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform shadow-sm; }
+
+      /* ---- Modal Dialog ---- */
+      .dialog-overlay { @apply fixed inset-0 bg-black/30 dark:bg-black/60 z-50 flex items-center justify-center; }
+      .dialog-content { @apply bg-white border border-gray-200 dark:bg-slate-900 dark:border-slate-700 rounded-lg shadow-xl max-w-lg w-full mx-4 overflow-hidden; }
+
+      /* ---- Filter Pill ---- */
+      .filter-pill { @apply inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-600 border border-gray-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 px-2 py-0.5 rounded; }
+
+      /* ---- Dropdown Menu ---- */
+      .dropdown-menu { @apply absolute right-0 mt-1 w-40 bg-white border border-gray-200 dark:bg-slate-800 dark:border-slate-700 rounded-lg shadow-xl z-20 py-1 overflow-hidden; }
+      .dropdown-item { @apply w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white transition-colors flex items-center gap-2; }
+      .dropdown-item-danger { @apply w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors flex items-center gap-2; }
+      .dropdown-divider { @apply h-px bg-gray-100 dark:bg-slate-700 my-1; }
+
+      /* ---- Tooltip ---- */
+      .tooltip { @apply absolute px-3 py-1.5 bg-gray-800 dark:bg-slate-700 text-xs text-white dark:text-slate-200 rounded-md shadow-lg whitespace-nowrap z-10; }
+
+      /* ---- Select Options List ---- */
+      .select-options { @apply absolute left-0 right-0 mt-1 bg-white border border-gray-200 dark:bg-slate-800 dark:border-slate-700 rounded-md shadow-xl z-20 py-1; }
+      .select-option  { @apply w-full text-left px-3 py-1.5 text-sm transition-colors; }
+
+      /* ---- Collapsible Sidebar ---- */
+      .sidebar           { @apply border-r border-gray-200 dark:border-slate-800 flex flex-col shrink-0 transition-all duration-200; }
+      .sidebar-expanded   { @apply w-64; }
+      .sidebar-collapsed  { @apply w-14; }
+      .sidebar-item       { @apply flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors; }
+      .sidebar-item-active   { @apply bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white font-medium; }
+      .sidebar-item-inactive { @apply text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-800/50; }
+      .sidebar-icon       { @apply w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-colors; }
+      .sidebar-icon-active   { @apply bg-gray-100 dark:bg-slate-800; }
+      .sidebar-icon-inactive { @apply hover:bg-gray-50 dark:hover:bg-slate-800/50; }
+
+      /* ---- List/Detail Split ---- */
+      .split-list    { @apply border-r border-gray-200 dark:border-slate-800 flex flex-col shrink-0; }
+      .split-item    { @apply px-3 py-2.5 rounded-lg cursor-pointer transition-colors border; }
+      .split-item-active   { @apply bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700; }
+      .split-item-inactive { @apply border-transparent hover:bg-gray-50/50 dark:hover:bg-slate-800/30; }
+
+      /* ---- Stepper ---- */
+      .step-dot         { @apply w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium; }
+      .step-dot-active  { @apply bg-emerald-600 text-white; }
+      .step-dot-pending { @apply bg-gray-200 text-gray-400 dark:bg-slate-700 dark:text-slate-500; }
+      .step-line        { @apply w-8 h-px; }
+      .step-line-done   { @apply bg-emerald-600/50; }
+      .step-line-pending { @apply bg-gray-200 dark:bg-slate-700; }
+    </style>
+
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.data("demos", () => ({
+          // Theme
+          isDark: true,
+          toggleTheme() {
+            this.isDark = !this.isDark;
+            document.documentElement.classList.toggle("dark", this.isDark);
+          },
+
+          // Toggle group
+          viewMode: "list",
+          typeFilter: "all",
+
+          // Switch
+          published: false,
+          notifications: true,
+
+          // Search
+          searchQuery: "",
+
+          // Tags
+          tags: ["design", "ui", "prototype", "alpine"],
+          newTag: "",
+          addTag() {
+            const t = this.newTag.trim().toLowerCase();
+            if (t && !this.tags.includes(t)) this.tags.push(t);
+            this.newTag = "";
+          },
+          removeTag(tag) {
+            this.tags = this.tags.filter(t => t !== tag);
+          },
+
+          // Collapsible
+          expanded: false,
+
+          // Empty state
+          items: [],
+          hasFilters: false,
+
+          // Modal
+          showConfirmDialog: false,
+          showFormDialog: false,
+          formTitle: "Example Item",
+          formDescription: "A description of the item.",
+
+          // Select
+          selectedRole: "",
+          roles: [
+            { value: "viewer", label: "Viewer" },
+            { value: "editor", label: "Editor" },
+            { value: "admin", label: "Admin" },
+          ],
+
+          // Tabs
+          activeTab: "general",
+
+          // Collapsible sidebar
+          sidebarCollapsed: false,
+          sidebarSelected: "dashboard",
+          sidebarItems: [
+            { id: "dashboard", label: "Dashboard", icon: "layout-dashboard" },
+            { id: "messages", label: "Messages", icon: "message-square", badge: "3" },
+            { id: "knowledge", label: "Knowledge", icon: "book-open" },
+            { id: "settings", label: "Settings", icon: "settings" },
+          ],
+
+          // List/detail split
+          splitSelected: null,
+          splitItems: [
+            { id: 1, title: "System Architecture", subtitle: "Core design patterns and tech stack", topic: "architecture" },
+            { id: 2, title: "Auth Flow", subtitle: "OAuth2 with PKCE for mobile clients", topic: "api" },
+            { id: 3, title: "Database Schema", subtitle: "Users, auth tokens, documents", topic: "database" },
+            { id: 4, title: "Code Conventions", subtitle: "Naming, error handling, file structure", topic: "conventions" },
+          ],
+
+          // Stepper
+          currentStep: 1,
+        }));
+      });
+    </script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+  </head>
+
+  <body class="bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-slate-200 min-h-screen transition-colors">
+    <div x-data="demos">
+      <!-- Header with theme toggle -->
+      <div class="max-w-3xl mx-auto px-6 py-10">
+        <div class="flex items-start justify-between mb-10">
+          <div>
+            <h1 class="page-title mb-2">Component Reference</h1>
+            <p class="text-muted">
+              Reusable UI patterns for HTML mockup prototyping. Copy the markup
+              and CSS classes into your mockup.
+            </p>
+          </div>
+          <!-- Persistent theme toggle -->
+          <button
+            @click="toggleTheme()"
+            class="p-2 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+            :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+          >
+            <i x-show="isDark" data-lucide="sun" class="w-4 h-4 pointer-events-none"></i>
+            <i x-show="!isDark" data-lucide="moon" class="w-4 h-4 pointer-events-none"></i>
+          </button>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════
+             1. TOGGLE GROUP / SEGMENTED CONTROL
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Toggle Group / Segmented Control</h2>
+          <p class="text-faint mb-4">
+            Grouped buttons where one is active at a time. Use for view mode
+            switches, type filters, or any mutually exclusive options.
+          </p>
+
+          <!-- CSS: .toggle-group, .toggle-item, .toggle-active, .toggle-inactive -->
+
+          <div class="card p-5 space-y-4">
+            <!-- Icon toggle (view mode) -->
+            <div>
+              <span class="label block mb-2">Icon toggle</span>
+              <div class="toggle-group">
+                <button
+                  @click="viewMode = 'list'"
+                  :class="viewMode === 'list' ? 'toggle-active' : 'toggle-inactive'"
+                  class="toggle-item flex items-center gap-1.5"
+                >
+                  <i data-lucide="list" class="w-3.5 h-3.5 pointer-events-none"></i>
+                </button>
+                <button
+                  @click="viewMode = 'grid'"
+                  :class="viewMode === 'grid' ? 'toggle-active' : 'toggle-inactive'"
+                  class="toggle-item flex items-center gap-1.5"
+                >
+                  <i data-lucide="layout-grid" class="w-3.5 h-3.5 pointer-events-none"></i>
+                </button>
+              </div>
+              <span class="label ml-3" x-text="'Active: ' + viewMode"></span>
+            </div>
+
+            <!-- Text toggle (filter) -->
+            <div>
+              <span class="label block mb-2">Text toggle</span>
+              <div class="toggle-group">
+                <template x-for="t in [{v:'all',l:'All'},{v:'audio',l:'Audio'},{v:'image',l:'Images'}]" :key="t.v">
+                  <button
+                    @click="typeFilter = t.v"
+                    :class="typeFilter === t.v ? 'toggle-active' : 'toggle-inactive'"
+                    class="toggle-item"
+                    x-text="t.l"
+                  ></button>
+                </template>
+              </div>
+              <span class="label ml-3" x-text="'Active: ' + typeFilter"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+             2. SWITCH / TOGGLE
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Switch / Toggle</h2>
+          <p class="text-faint mb-4">
+            Boolean on/off toggle with sliding dot. Use for publish states,
+            feature flags, or any binary setting.
+          </p>
+
+          <!-- CSS: .switch, .switch-on, .switch-off, .switch-dot -->
+
+          <div class="card p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-700 dark:text-slate-300">Published</span>
+              <div
+                class="switch"
+                :class="published ? 'switch-on' : 'switch-off'"
+                @click="published = !published"
+              >
+                <div
+                  class="switch-dot"
+                  :class="published ? 'translate-x-4' : 'translate-x-0.5'"
+                ></div>
+              </div>
+            </div>
+
+            <div class="h-px bg-gray-100 dark:bg-slate-800"></div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-700 dark:text-slate-300">Notifications</span>
+              <div
+                class="switch"
+                :class="notifications ? 'switch-on' : 'switch-off'"
+                @click="notifications = !notifications"
+              >
+                <div
+                  class="switch-dot"
+                  :class="notifications ? 'translate-x-4' : 'translate-x-0.5'"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+             3. SEARCH INPUT WITH CLEAR
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Search Input with Clear</h2>
+          <p class="text-faint mb-4">
+            Input with search icon on the left and conditional clear button on
+            the right. Icon uses absolute positioning; input has left padding to
+            avoid overlap.
+          </p>
+
+          <div class="card p-5">
+            <div class="relative max-w-sm">
+              <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 pointer-events-none"></i>
+              <input
+                x-model="searchQuery"
+                type="text"
+                placeholder="Search..."
+                class="input !pl-9 !pr-8"
+              />
+              <button
+                x-show="searchQuery"
+                @click="searchQuery = ''"
+                class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:text-slate-500 dark:hover:text-white transition-colors"
+              >
+                <i data-lucide="x" class="w-3.5 h-3.5 pointer-events-none"></i>
+              </button>
+            </div>
+            <span class="label mt-2 block" x-text="searchQuery ? 'Query: ' + searchQuery : 'Type to search...'"></span>
+          </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+             4. TAG INPUT (ADD / REMOVE)
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Tag Input</h2>
+          <p class="text-faint mb-4">
+            Editable tag list with per-tag removal and add input. Tags display
+            as badges with an X button; new tags are added via text input +
+            Enter or button.
+          </p>
+
+          <div class="card p-5 space-y-3">
+            <!-- Tag display -->
+            <div class="flex flex-wrap gap-1.5">
+              <template x-for="tag in tags" :key="tag">
+                <span @click="removeTag(tag)" class="badge-muted gap-1 cursor-pointer hover:border-red-500/40 hover:text-red-300 transition-colors inline-flex items-center">
+                  <span x-text="tag" class="pointer-events-none"></span>
+                  <i data-lucide="x" class="w-3 h-3 pointer-events-none"></i>
+                </span>
+              </template>
+              <button x-show="tags.length > 1" @click="tags = []" class="text-xs text-gray-400 hover:text-gray-700 dark:text-slate-500 dark:hover:text-white ml-1">Clear all</button>
+              <span x-show="tags.length === 0" class="text-faint">No tags</span>
+            </div>
+
+            <!-- Add input -->
+            <div class="flex gap-2 max-w-xs">
+              <input
+                x-model="newTag"
+                @keydown.enter.prevent="addTag()"
+                type="text"
+                class="input flex-1"
+                placeholder="Add a tag"
+              />
+              <button @click="addTag()" class="btn-outline text-xs px-2 py-1.5">
+                <i data-lucide="plus" class="w-4 h-4 pointer-events-none"></i>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+             5. MODAL DIALOG (CONFIRM + FORM)
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Modal Dialog</h2>
+          <p class="text-faint mb-4">
+            Two variants: destructive confirmation and form dialog. Both use a
+            fixed overlay with centered panel. Close on backdrop click or Cancel.
+          </p>
+
+          <!-- CSS: .dialog-overlay, .dialog-content -->
+
+          <div class="card p-5 flex gap-3">
+            <button @click="showConfirmDialog = true" class="btn-outline text-xs">
+              Open Confirm Dialog
+            </button>
+            <button @click="showFormDialog = true" class="btn-outline text-xs">
+              Open Form Dialog
+            </button>
+          </div>
+
+          <!-- Confirm dialog -->
+          <div x-show="showConfirmDialog" x-transition class="dialog-overlay" @click.self="showConfirmDialog = false">
+            <div class="dialog-content max-w-md" @click.stop>
+              <div class="px-6 py-5">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Delete Item?</h2>
+                <p class="text-muted">
+                  This will permanently delete this item. This action cannot be undone.
+                </p>
+              </div>
+              <div class="px-6 py-4 border-t border-gray-100 dark:border-slate-800 flex justify-end gap-3">
+                <button @click="showConfirmDialog = false" class="btn-outline">Cancel</button>
+                <button @click="showConfirmDialog = false" class="btn-destructive">Delete</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form dialog -->
+          <div x-show="showFormDialog" x-transition class="dialog-overlay" @click.self="showFormDialog = false">
+            <div class="dialog-content max-w-lg" @click.stop>
+              <div class="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex items-start justify-between">
+                <div>
+                  <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Edit Item</h2>
+                  <p class="text-muted">Update item metadata.</p>
+                </div>
+                <button @click="showFormDialog = false" class="btn-icon mt-0.5">
+                  <i data-lucide="x" class="w-4 h-4 pointer-events-none"></i>
+                </button>
+              </div>
+              <div class="px-6 py-5 space-y-4">
+                <div class="space-y-1.5">
+                  <label class="text-sm text-gray-700 dark:text-slate-300">Title</label>
+                  <input type="text" class="input" x-model="formTitle" />
+                </div>
+                <div class="space-y-1.5">
+                  <label class="text-sm text-gray-700 dark:text-slate-300">Description</label>
+                  <textarea class="input resize-none" rows="3" x-model="formDescription"></textarea>
+                </div>
+              </div>
+              <div class="px-6 py-4 border-t border-gray-100 dark:border-slate-800 flex justify-end gap-3">
+                <button @click="showFormDialog = false" class="btn-outline">Cancel</button>
+                <button @click="showFormDialog = false" class="btn-primary">Save Changes</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+             6. COLLAPSIBLE SECTION
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Collapsible Section</h2>
+          <p class="text-faint mb-4">
+            Expandable content with chevron indicator. Uses its own
+            <code class="text-gray-500 dark:text-slate-400">x-data</code> scope
+            so it's self-contained — drop it anywhere without wiring up parent
+            state.
+          </p>
+
+          <div class="card">
+            <!-- Collapsible 1 -->
+            <div x-data="{ expanded: false }" class="px-5 py-4 border-b border-gray-100 dark:border-slate-800">
+              <button
+                @click="expanded = !expanded"
+                class="flex items-center justify-between w-full"
+              >
+                <h3 class="section-title">Details</h3>
+                <i
+                  data-lucide="chevron-down"
+                  class="w-4 h-4 text-gray-400 dark:text-slate-500 transition-transform pointer-events-none"
+                  :class="expanded ? 'rotate-180' : ''"
+                ></i>
+              </button>
+              <div x-show="expanded" x-transition class="mt-3">
+                <div class="inset p-3 text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
+                  This content is hidden by default and revealed when the header
+                  is clicked. The chevron rotates 180° to indicate the expanded
+                  state.
+                </div>
+              </div>
+            </div>
+
+            <!-- Collapsible 2 (starts open) -->
+            <div x-data="{ expanded: true }" class="px-5 py-4">
+              <button
+                @click="expanded = !expanded"
+                class="flex items-center justify-between w-full"
+              >
+                <h3 class="section-title">Configuration</h3>
+                <i
+                  data-lucide="chevron-down"
+                  class="w-4 h-4 text-gray-400 dark:text-slate-500 transition-transform pointer-events-none"
+                  :class="expanded ? 'rotate-180' : ''"
+                ></i>
+              </button>
+              <div x-show="expanded" x-transition class="mt-3">
+                <div class="inset p-3 text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
+                  This section starts expanded. Set
+                  <code class="text-gray-600 dark:text-slate-300">expanded: true</code> in the
+                  initial x-data to control the default state.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+             7. EMPTY STATE
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Empty State</h2>
+          <p class="text-faint mb-4">
+            Conditional messaging when a list has no items. Shows different copy
+            depending on whether filters are active (helping the user understand
+            why the list is empty).
+          </p>
+
+          <div class="card p-5 space-y-4">
+            <div class="flex gap-3 mb-2">
+              <button
+                @click="hasFilters = !hasFilters"
+                class="btn-outline text-xs"
+                x-text="hasFilters ? 'Clear Filters' : 'Simulate Filters'"
+              ></button>
+              <button
+                @click="items = items.length ? [] : ['a']"
+                class="btn-outline text-xs"
+                x-text="items.length ? 'Clear Items' : 'Add Item'"
+              ></button>
+            </div>
+
+            <div x-show="items.length === 0" class="text-center py-10">
+              <i data-lucide="inbox" class="w-10 h-10 text-gray-300 dark:text-slate-600 mx-auto mb-3 pointer-events-none"></i>
+              <template x-if="hasFilters">
+                <div>
+                  <p class="text-muted">No items match your filters.</p>
+                  <p class="text-faint mt-1">Try adjusting your search or filter criteria.</p>
+                </div>
+              </template>
+              <template x-if="!hasFilters">
+                <div>
+                  <p class="text-muted">No items yet.</p>
+                  <p class="text-faint mt-1">Upload your first file to get started.</p>
+                </div>
+              </template>
+            </div>
+
+            <div x-show="items.length > 0" class="text-center py-6">
+              <p class="text-muted">List has items — empty state is hidden.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+             8. SELECT DROPDOWN (CUSTOM)
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Select Dropdown</h2>
+          <p class="text-faint mb-4">
+            Custom select built with Alpine.js for consistent styling across
+            browsers. Uses <code class="text-gray-500 dark:text-slate-400">@click.outside</code>
+            to close. The options list renders as an absolute-positioned div
+            — the parent container must not have
+            <code class="text-gray-500 dark:text-slate-400">overflow-hidden</code>.
+          </p>
+
+          <!-- CSS: .select-options, .select-option -->
+
+          <div class="card !overflow-visible p-5 space-y-4">
+            <!-- Static options -->
+            <div class="max-w-xs space-y-1.5">
+              <label class="text-sm text-gray-700 dark:text-slate-300">Status</label>
+              <div class="relative" x-data="{ open: false, selected: '' }">
+                <button
+                  @click="open = !open"
+                  class="input cursor-pointer text-left flex items-center justify-between pr-3"
+                >
+                  <span :class="selected ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-500'" x-text="selected || 'All statuses'"></span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 pointer-events-none transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                </button>
+                <div
+                  x-show="open"
+                  @click.outside="open = false"
+                  x-transition
+                  class="select-options"
+                >
+                  <template x-for="opt in [{v:'',l:'All statuses'},{v:'active',l:'Active'},{v:'inactive',l:'Inactive'},{v:'pending',l:'Pending'}]" :key="opt.v">
+                    <button
+                      @click="selected = opt.v; open = false"
+                      class="select-option"
+                      :class="selected === opt.v ? 'text-gray-900 bg-gray-50 dark:text-white dark:bg-slate-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white'"
+                      x-text="opt.l"
+                    ></button>
+                  </template>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic options with bound value -->
+            <div class="max-w-xs space-y-1.5">
+              <label class="text-sm text-gray-700 dark:text-slate-300">Role</label>
+              <div class="relative" x-data="{ open: false }">
+                <button
+                  @click="open = !open"
+                  class="input cursor-pointer text-left flex items-center justify-between pr-3"
+                >
+                  <span :class="selectedRole ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-500'" x-text="selectedRole ? roles.find(r => r.value === selectedRole)?.label : 'Choose a role…'"></span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 dark:text-slate-500 pointer-events-none transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                </button>
+                <div
+                  x-show="open"
+                  @click.outside="open = false"
+                  x-transition
+                  class="select-options"
+                >
+                  <template x-for="role in roles" :key="role.value">
+                    <button
+                      @click="selectedRole = role.value; open = false"
+                      class="select-option"
+                      :class="selectedRole === role.value ? 'text-gray-900 bg-gray-50 dark:text-white dark:bg-slate-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white'"
+                      x-text="role.label"
+                    ></button>
+                  </template>
+                </div>
+              </div>
+              <span class="label block" x-text="selectedRole ? 'Selected: ' + selectedRole : 'No selection'"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+             9. DROPDOWN MENU (3-DOT)
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Dropdown Menu</h2>
+          <p class="text-faint mb-4">
+            Menu triggered by a 3-dot (more) button. Uses its own
+            <code class="text-gray-500 dark:text-slate-400">x-data</code> scope and closes on
+            outside click via <code class="text-gray-500 dark:text-slate-400">@click.outside</code>.
+          </p>
+
+          <!-- CSS: .dropdown-menu, .dropdown-item, .dropdown-item-danger, .dropdown-divider -->
+
+          <div class="card !overflow-visible p-5">
+            <div class="flex items-center gap-4">
+              <span class="text-sm text-gray-700 dark:text-slate-300">Item row example</span>
+              <div class="ml-auto relative" x-data="{ open: false }">
+                <button
+                  @click="open = !open"
+                  class="text-gray-400 hover:text-gray-700 dark:text-slate-500 dark:hover:text-white transition-colors p-1 rounded hover:bg-gray-100 dark:hover:bg-slate-800"
+                >
+                  <i data-lucide="more-vertical" class="w-4 h-4 pointer-events-none"></i>
+                </button>
+                <div
+                  x-show="open"
+                  @click.outside="open = false"
+                  x-transition
+                  class="dropdown-menu"
+                >
+                  <button @click="open = false" class="dropdown-item">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5 pointer-events-none"></i> Edit
+                  </button>
+                  <button @click="open = false" class="dropdown-item">
+                    <i data-lucide="copy" class="w-3.5 h-3.5 pointer-events-none"></i> Duplicate
+                  </button>
+                  <div class="dropdown-divider"></div>
+                  <button @click="open = false" class="dropdown-item-danger">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none"></i> Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+             10. TOOLTIP
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Tooltip</h2>
+          <p class="text-faint mb-4">
+            Info tooltip on hover using
+            <code class="text-gray-500 dark:text-slate-400">@mouseenter</code> /
+            <code class="text-gray-500 dark:text-slate-400">@mouseleave</code>. Uses its own
+            <code class="text-gray-500 dark:text-slate-400">x-data</code> scope. Parent container
+            must not have <code class="text-gray-500 dark:text-slate-400">overflow-hidden</code>.
+          </p>
+
+          <!-- CSS: .tooltip -->
+
+          <div class="card !overflow-visible p-5">
+            <div class="flex items-center gap-6">
+              <!-- Tooltip above -->
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-700 dark:text-slate-300">API Key</span>
+                <div class="relative" x-data="{ show: false }">
+                  <button
+                    @mouseenter="show = true"
+                    @mouseleave="show = false"
+                    class="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+                  >
+                    <i data-lucide="info" class="w-3.5 h-3.5 pointer-events-none"></i>
+                  </button>
+                  <div
+                    x-show="show"
+                    x-transition
+                    class="tooltip bottom-full left-1/2 -translate-x-1/2 mb-2"
+                  >
+                    This key is shown once and cannot be recovered.
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800 dark:border-t-slate-700"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tooltip to the right -->
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-700 dark:text-slate-300">Checksum</span>
+                <div class="relative" x-data="{ show: false }">
+                  <button
+                    @mouseenter="show = true"
+                    @mouseleave="show = false"
+                    class="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+                  >
+                    <i data-lucide="info" class="w-3.5 h-3.5 pointer-events-none"></i>
+                  </button>
+                  <div
+                    x-show="show"
+                    x-transition
+                    class="tooltip left-full top-1/2 -translate-y-1/2 ml-2"
+                  >
+                    SHA-256 hash of the processed file.
+                    <div class="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-800 dark:border-r-slate-700"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+             11. TABS
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Tabs</h2>
+          <p class="text-faint mb-4">
+            Bottom-border tab navigation for switching content within a page
+            section. Active tab gets a colored bottom border and bold text.
+            Content panels use <code class="text-gray-500 dark:text-slate-400">x-show</code>.
+          </p>
+
+          <div class="card p-5">
+            <!-- Tab bar -->
+            <div class="flex gap-1 border-b border-gray-200 dark:border-slate-800 mb-4">
+              <template x-for="tab in [{id:'general',l:'General'},{id:'permissions',l:'Permissions'},{id:'advanced',l:'Advanced'}]" :key="tab.id">
+                <button
+                  @click="activeTab = tab.id"
+                  :class="activeTab === tab.id
+                    ? 'border-b-2 border-emerald-500 text-gray-900 dark:text-white'
+                    : 'text-gray-400 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200'"
+                  class="text-sm font-medium px-4 pb-2.5 transition-colors"
+                  x-text="tab.l"
+                ></button>
+              </template>
+            </div>
+
+            <!-- Tab panels -->
+            <div x-show="activeTab === 'general'" class="text-muted">
+              <p>General settings content. Name, description, and basic configuration.</p>
+            </div>
+            <div x-show="activeTab === 'permissions'" class="text-muted">
+              <p>Permission settings content. Role assignments and access controls.</p>
+            </div>
+            <div x-show="activeTab === 'advanced'" class="text-muted">
+              <p>Advanced settings content. API keys, webhooks, and danger zone.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+             12. THEME TOGGLE
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Theme Toggle</h2>
+          <p class="text-faint mb-4">
+            Sun/moon icon button that switches between dark and light themes.
+            Toggles the <code class="text-gray-500 dark:text-slate-400">dark</code>
+            class on <code class="text-gray-500 dark:text-slate-400">&lt;html&gt;</code>.
+            When all markup uses semantic classes, switching themes only changes
+            the <code class="text-gray-500 dark:text-slate-400">@apply</code> definitions —
+            no markup changes needed. The toggle in the page header above is a
+            live demo.
+          </p>
+
+          <div class="card p-5 space-y-4">
+            <div class="flex items-center gap-4">
+              <!-- Standalone toggle button -->
+              <button
+                @click="toggleTheme()"
+                class="p-2 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+              >
+                <i x-show="isDark" data-lucide="sun" class="w-4 h-4 pointer-events-none"></i>
+                <i x-show="!isDark" data-lucide="moon" class="w-4 h-4 pointer-events-none"></i>
+              </button>
+              <span class="text-muted" x-text="isDark ? 'Dark mode active' : 'Light mode active'"></span>
+            </div>
+
+            <div class="inset p-3 text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
+              <strong class="text-gray-700 dark:text-slate-300">How it works:</strong>
+              Tailwind's <code>darkMode: "class"</code> config enables the
+              <code>dark:</code> prefix. Semantic classes define both variants
+              (e.g. <code>.card</code> uses <code>bg-white dark:bg-slate-900</code>).
+              The toggle calls
+              <code>document.documentElement.classList.toggle("dark")</code>.
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ════════════════════════════════════════════════════════════
+           NEW COMPONENTS — LAYOUT PATTERNS
+           These extend the reference with patterns for app-level layout
+           that go beyond individual widgets.
+           ════════════════════════════════════════════════════════════ -->
+
+      <div class="max-w-3xl mx-auto px-6 pb-10">
+        <div class="mb-10 pt-6 border-t border-gray-200 dark:border-slate-800">
+          <h1 class="page-title mb-2">Layout Patterns</h1>
+          <p class="text-muted">
+            App-level layout components for sidebars, split panes, and multi-step
+            flows. These are more structural than the widget patterns above.
+          </p>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════
+             13. COLLAPSIBLE SIDEBAR
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Collapsible Sidebar</h2>
+          <p class="text-faint mb-4">
+            Navigation sidebar that transitions between full-width (with labels) and
+            narrow icon-only mode. Common in desktop apps (VS Code, Discord, Slack).
+            The width animates via CSS transition. Click the logo/icon area to toggle.
+            In collapsed mode, items show as icon-only buttons with tooltips (via
+            <code class="text-gray-500 dark:text-slate-400">title</code> attribute).
+            Badge counts show as small indicators in collapsed mode.
+          </p>
+
+          <!-- CSS: .sidebar, .sidebar-expanded, .sidebar-collapsed, .sidebar-item, .sidebar-item-active,
+                     .sidebar-item-inactive, .sidebar-icon, .sidebar-icon-active, .sidebar-icon-inactive -->
+
+          <div class="card !overflow-visible" style="height: 320px;">
+            <div class="flex h-full">
+              <!-- Sidebar -->
+              <div
+                class="sidebar"
+                :class="sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'"
+              >
+                <!-- Header -->
+                <div
+                  class="border-b border-gray-200 dark:border-slate-800 flex items-center shrink-0 cursor-pointer"
+                  :class="sidebarCollapsed ? 'justify-center p-3' : 'justify-between px-4 py-3'"
+                  @click="sidebarCollapsed = !sidebarCollapsed"
+                >
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-600/20 flex items-center justify-center shrink-0">
+                      <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-400 pointer-events-none"></i>
+                    </div>
+                    <span x-show="!sidebarCollapsed" class="font-semibold text-gray-900 dark:text-white text-sm">My App</span>
+                  </div>
+                  <i x-show="!sidebarCollapsed" data-lucide="panel-left" class="w-4 h-4 text-gray-400 dark:text-slate-500 pointer-events-none"></i>
+                </div>
+
+                <!-- Expanded items -->
+                <div x-show="!sidebarCollapsed" class="flex-1 p-2 space-y-0.5">
+                  <template x-for="item in sidebarItems" :key="item.id">
+                    <div
+                      class="sidebar-item"
+                      :class="sidebarSelected === item.id ? 'sidebar-item-active' : 'sidebar-item-inactive'"
+                      @click="sidebarSelected = item.id"
+                    >
+                      <i :data-lucide="item.icon" class="w-4 h-4 pointer-events-none"></i>
+                      <span x-text="item.label"></span>
+                      <span x-show="item.badge" class="ml-auto text-xs bg-emerald-600 text-white px-1.5 py-0.5 rounded-full" x-text="item.badge"></span>
+                    </div>
+                  </template>
+                </div>
+
+                <!-- Collapsed icons -->
+                <div x-show="sidebarCollapsed" class="flex-1 p-1.5 space-y-1 flex flex-col items-center">
+                  <template x-for="item in sidebarItems" :key="item.id">
+                    <div
+                      class="sidebar-icon relative"
+                      :class="sidebarSelected === item.id ? 'sidebar-icon-active' : 'sidebar-icon-inactive'"
+                      @click="sidebarSelected = item.id"
+                      :title="item.label"
+                    >
+                      <i :data-lucide="item.icon" class="w-4 h-4 pointer-events-none" :class="sidebarSelected === item.id ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-500'"></i>
+                      <div
+                        x-show="item.badge"
+                        class="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-600 text-white flex items-center justify-center"
+                        style="font-size: 9px; font-weight: 600;"
+                        x-text="item.badge"
+                      ></div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Content area -->
+              <div class="flex-1 flex items-center justify-center">
+                <p class="text-muted" x-text="'Selected: ' + sidebarSelected"></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+             14. LIST/DETAIL SPLIT PANE
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">List/Detail Split Pane</h2>
+          <p class="text-faint mb-4">
+            Common layout for browsing a collection: a scrollable list on the left and
+            a content/reading pane on the right. Click an item in the list to see its
+            details. When nothing is selected, the right pane shows a placeholder.
+            The key CSS challenge is scroll containment — the list and detail pane
+            scroll independently. Use <code class="text-gray-500 dark:text-slate-400">min-h-0</code>
+            on flex containers and <code class="text-gray-500 dark:text-slate-400">overflow-y-auto</code>
+            on the scrollable areas. For a pinned header in the detail pane (header stays
+            fixed while body scrolls), make the detail pane a flex column with the header
+            as <code class="text-gray-500 dark:text-slate-400">shrink-0</code> and the body as
+            <code class="text-gray-500 dark:text-slate-400">flex-1 overflow-y-auto</code>.
+          </p>
+
+          <!-- CSS: .split-list, .split-item, .split-item-active, .split-item-inactive -->
+
+          <div class="card" style="height: 360px;">
+            <div class="flex h-full">
+              <!-- List -->
+              <div class="split-list w-56 overflow-y-auto p-2 space-y-0.5">
+                <template x-for="item in splitItems" :key="item.id">
+                  <div
+                    class="split-item"
+                    :class="splitSelected === item.id ? 'split-item-active' : 'split-item-inactive'"
+                    @click="splitSelected = item.id"
+                  >
+                    <div class="text-sm font-medium" :class="splitSelected === item.id ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-slate-300'" x-text="item.title"></div>
+                    <div class="text-faint mt-0.5" x-text="item.subtitle"></div>
+                  </div>
+                </template>
+              </div>
+
+              <!-- Detail pane -->
+              <div class="flex-1 flex flex-col min-h-0">
+                <!-- Empty state -->
+                <div x-show="!splitSelected" class="flex-1 flex items-center justify-center">
+                  <div class="text-center">
+                    <i data-lucide="file-text" class="w-10 h-10 text-gray-300 dark:text-slate-600 mx-auto mb-3 pointer-events-none"></i>
+                    <p class="text-muted">Select an item to view</p>
+                  </div>
+                </div>
+
+                <!-- Selected item (pinned header + scrollable body) -->
+                <template x-if="splitSelected">
+                  <div class="flex-1 flex flex-col min-h-0">
+                    <!-- Pinned header -->
+                    <div class="px-5 py-3 border-b border-gray-200 dark:border-slate-800 shrink-0">
+                      <h3 class="text-sm font-semibold text-gray-900 dark:text-white" x-text="splitItems.find(i => i.id === splitSelected)?.title"></h3>
+                      <span class="badge-muted mt-1 inline-block" x-text="splitItems.find(i => i.id === splitSelected)?.topic"></span>
+                    </div>
+                    <!-- Scrollable body -->
+                    <div class="flex-1 overflow-y-auto p-5">
+                      <p class="text-muted leading-relaxed">
+                        This is the detail content for the selected item. In a real mockup, this would
+                        contain the full entry — documentation, code blocks, tables, etc. The header above
+                        stays pinned while this area scrolls independently from the list on the left.
+                      </p>
+                      <div class="inset p-3 mt-4 text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
+                        <strong class="text-gray-700 dark:text-slate-300">Scroll containment tip:</strong>
+                        The parent flex container needs <code>min-h-0</code> to allow children to shrink below
+                        their content height. Without it, the flex item won't respect <code>overflow-y-auto</code>
+                        and the whole page scrolls instead.
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════
+             15. STEPPER / MULTI-STEP FLOW
+             ════════════════════════════════════════════════════════ -->
+        <section class="mb-12">
+          <h2 class="section-title mb-4">Stepper / Multi-Step Flow</h2>
+          <p class="text-faint mb-4">
+            Step progress indicator with numbered dots and connecting lines. Use inside
+            modals or full-page wizards for setup flows, onboarding, or any multi-step
+            process. Steps are numbered with dots that fill in as you progress. The
+            content area switches based on the active step. Back/Next navigation in
+            the footer, with the final step showing a different action button.
+          </p>
+
+          <!-- CSS: .step-dot, .step-dot-active, .step-dot-pending, .step-line, .step-line-done, .step-line-pending -->
+
+          <div class="card p-5">
+            <!-- Step indicators -->
+            <div class="flex items-center justify-center gap-2 mb-6">
+              <template x-for="step in [1, 2, 3]" :key="step">
+                <div class="flex items-center gap-2">
+                  <div
+                    class="step-dot"
+                    :class="currentStep >= step ? 'step-dot-active' : 'step-dot-pending'"
+                    x-text="step"
+                  ></div>
+                  <span class="text-xs" :class="currentStep >= step ? 'text-gray-700 dark:text-slate-300' : 'text-gray-400 dark:text-slate-500'"
+                    x-text="step === 1 ? 'Details' : step === 2 ? 'Configure' : 'Confirm'"
+                  ></span>
+                  <div x-show="step < 3" class="step-line" :class="currentStep > step ? 'step-line-done' : 'step-line-pending'"></div>
+                </div>
+              </template>
+            </div>
+
+            <!-- Step content -->
+            <div class="inset p-4 mb-4 min-h-[80px] flex items-center justify-center">
+              <p x-show="currentStep === 1" class="text-muted">Step 1: Enter name, description, and basic details.</p>
+              <p x-show="currentStep === 2" class="text-muted">Step 2: Configure settings and options.</p>
+              <p x-show="currentStep === 3" class="text-muted">Step 3: Review and confirm your choices.</p>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex items-center justify-between">
+              <button
+                x-show="currentStep > 1"
+                class="btn-outline text-xs"
+                @click="currentStep--"
+              >
+                <i data-lucide="arrow-left" class="w-3.5 h-3.5 pointer-events-none"></i>
+                Back
+              </button>
+              <div x-show="currentStep === 1"></div>
+
+              <button
+                x-show="currentStep < 3"
+                class="btn-primary text-xs"
+                @click="currentStep++"
+              >
+                Continue
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5 pointer-events-none"></i>
+              </button>
+              <button
+                x-show="currentStep === 3"
+                class="btn-primary text-xs"
+                @click="currentStep = 1"
+              >
+                <i data-lucide="check" class="w-3.5 h-3.5 pointer-events-none"></i>
+                Complete
+              </button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- Initialize Lucide icons with Alpine-aware refresh -->
+    <script>
+      document.addEventListener("alpine:initialized", () => {
+        lucide.createIcons();
+        let pending = false;
+        const observer = new MutationObserver(() => {
+          if (pending) return;
+          pending = true;
+          requestAnimationFrame(() => {
+            lucide.createIcons();
+            pending = false;
+          });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+      });
+    </script>
+  </body>
+</html>

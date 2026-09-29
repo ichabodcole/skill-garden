@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mockup — Auth Flows</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
+
+    <!--
+      ============================================================
+      THEME
+      Dark theme matching admin-dashboard-mockup.html (slate-950 base).
+      Auth card: slate-900 on slate-950. Buttons: emerald primary.
+
+      The amber state-switcher bar is prototype chrome — it is NOT
+      part of the app's design; it exists only in the mockup.
+      ============================================================
+    -->
+    <style type="text/tailwindcss">
+      /* ---- Base ---- */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      /* ---- Typography ---- */
+      .page-title {
+        @apply text-2xl font-bold text-white;
+      }
+      .section-title {
+        @apply text-xs font-semibold text-slate-400 uppercase tracking-wide;
+      }
+      .label {
+        @apply text-sm font-medium text-slate-300;
+      }
+      .text-body {
+        @apply text-sm text-slate-200 leading-relaxed;
+      }
+      .text-muted {
+        @apply text-sm text-slate-400;
+      }
+      .text-faint {
+        @apply text-xs text-slate-500;
+      }
+      .text-mono {
+        @apply text-xs text-slate-600 font-mono;
+      }
+      .link {
+        @apply text-sm text-blue-400 hover:text-blue-300 transition-colors;
+      }
+      .link-subtle {
+        @apply text-sm text-slate-500 hover:text-slate-300 transition-colors;
+      }
+
+      /* ---- Surfaces ---- */
+      .card {
+        @apply w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl p-8;
+      }
+      .inset {
+        @apply bg-slate-950 border border-slate-800 rounded-md;
+      }
+
+      /* ---- Alerts ---- */
+      .alert-error {
+        @apply rounded-md bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400;
+      }
+      .alert-success {
+        @apply rounded-md bg-emerald-500/10 border border-emerald-500/20 p-3 text-sm text-emerald-400;
+      }
+      .alert-info {
+        @apply rounded-md bg-slate-800 border border-slate-700 p-3 text-sm text-slate-300;
+      }
+      .alert-warning {
+        @apply rounded-md bg-amber-500/10 border border-amber-500/20 p-3 text-sm text-amber-400;
+      }
+
+      /* ---- Buttons ---- */
+      .btn {
+        @apply text-sm px-4 py-2 rounded-md font-medium transition-colors
+               flex items-center justify-center gap-2
+               disabled:opacity-50 disabled:cursor-not-allowed;
+      }
+      .btn-primary {
+        @apply btn bg-emerald-600 text-white hover:bg-emerald-500;
+      }
+      .btn-outline {
+        @apply btn border border-slate-700 text-slate-300 hover:bg-slate-800;
+      }
+      .btn-ghost {
+        @apply text-xs px-3 py-2 rounded-md border border-slate-800
+               text-slate-500 hover:text-slate-300 hover:border-slate-700
+               transition-colors flex items-center justify-center gap-2
+               disabled:opacity-50 disabled:cursor-not-allowed;
+      }
+      .btn-icon {
+        @apply text-slate-500 hover:text-white transition-colors;
+      }
+
+      /* ---- Form controls ---- */
+      .input {
+        @apply w-full bg-slate-900 border border-slate-700 text-sm text-white
+               px-3 py-2 rounded-md placeholder-slate-500
+               focus:outline-none focus:border-slate-500
+               disabled:opacity-40 disabled:cursor-not-allowed transition-colors;
+      }
+      .input-error {
+        @apply border-red-500/50 focus:border-red-500/70;
+      }
+      .field-error {
+        @apply text-xs text-red-400;
+      }
+
+      /* ---- Spinner ---- */
+      .spinner {
+        @apply inline-block rounded-full border-2 border-slate-600 border-t-slate-200 animate-spin;
+      }
+    </style>
+
+    <!--
+      ============================================================
+      APP STATE
+      ============================================================
+    -->
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.data("app", () => ({
+          group: "sign-in",
+          state: "sign-in",
+          resendCooldown: 0,
+          _resendTimer: null,
+
+          groups: [
+            {
+              id: "sign-in",
+              label: "Sign In",
+              states: [
+                { id: "sign-in", label: "1 · Default" },
+                { id: "sign-in-error", label: "2 · Error" },
+                { id: "sign-in-unverified", label: "3 · Unverified Email" },
+              ],
+            },
+            {
+              id: "sign-up",
+              label: "Sign Up",
+              states: [
+                { id: "sign-up", label: "4 · Default" },
+                { id: "sign-up-errors", label: "5 · Validation Errors" },
+              ],
+            },
+            {
+              id: "verify-email",
+              label: "Verify Email",
+              states: [
+                { id: "verify-inbox", label: "6 · Check Inbox" },
+                { id: "verify-loading", label: "7 · Verifying" },
+                { id: "verify-success", label: "8 · Verified" },
+                { id: "verify-expired", label: "9 · Link Expired" },
+              ],
+            },
+            {
+              id: "forgot-password",
+              label: "Forgot Password",
+              states: [
+                { id: "forgot-form", label: "10 · Form" },
+                { id: "forgot-sent", label: "11 · Email Sent" },
+              ],
+            },
+            {
+              id: "reset-password",
+              label: "Reset Password",
+              states: [
+                { id: "reset-form", label: "12 · Form" },
+                { id: "reset-success", label: "13 · Success" },
+                { id: "reset-expired", label: "14 · Link Expired" },
+              ],
+            },
+            {
+              id: "user-nav",
+              label: "User Nav",
+              states: [
+                { id: "user-nav-signed-in", label: "15 · Signed In" },
+                { id: "user-nav-loading", label: "16 · Loading" },
+                { id: "user-nav-signed-out", label: "17 · Signed Out" },
+              ],
+            },
+            {
+              id: "account-settings",
+              label: "Account Settings",
+              states: [
+                { id: "settings-profile", label: "18 · Profile" },
+                { id: "settings-email", label: "19 · Change Email" },
+                { id: "settings-email-sent", label: "20 · Email Verification Sent" },
+                { id: "settings-password", label: "21 · Change Password" },
+                { id: "settings-password-success", label: "22 · Password Changed" },
+              ],
+            },
+          ],
+
+          get activeGroup() {
+            return this.groups.find((g) => g.id === this.group);
+          },
+
+          selectGroup(groupId) {
+            this.group = groupId;
+            const g = this.groups.find((g) => g.id === groupId);
+            this.state = g.states[0].id;
+            if (
+              this.state === "sign-in-unverified" ||
+              this.state === "verify-inbox"
+            ) {
+              this.startResendCooldown();
+            }
+          },
+
+          selectState(stateId) {
+            this.state = stateId;
+            if (
+              stateId === "sign-in-unverified" ||
+              stateId === "verify-inbox"
+            ) {
+              this.startResendCooldown();
+            }
+          },
+
+          startResendCooldown() {
+            clearInterval(this._resendTimer);
+            this.resendCooldown = 30;
+            this._resendTimer = setInterval(() => {
+              this.resendCooldown--;
+              if (this.resendCooldown <= 0) {
+                clearInterval(this._resendTimer);
+                this.resendCooldown = 0;
+              }
+            }, 1000);
+          },
+        }));
+      });
+    </script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+  </head>
+
+  <body class="bg-slate-950 text-slate-200 min-h-screen">
+    <div x-data="app">
+
+      <!-- ============================================================
+           STATE SWITCHER — two-level amber prototype chrome
+           Row 1: flow group tabs
+           Row 2: state buttons for active group
+           ============================================================ -->
+      <div class="sticky top-0 z-50 bg-amber-950/60 border-b border-amber-800/40">
+
+        <!-- Row 1: group tabs -->
+        <div class="px-4 pt-2 pb-0 flex items-center gap-1">
+          <span class="section-title text-amber-500 pr-2">Prototype</span>
+          <template x-for="g in groups" :key="g.id">
+            <button
+              @click="selectGroup(g.id)"
+              :class="group === g.id
+                ? 'bg-amber-700/60 text-amber-100 border-amber-600/60'
+                : 'text-amber-400/70 border-transparent hover:text-amber-300 hover:bg-amber-800/30'"
+              class="text-xs px-3 py-1.5 rounded-t border border-b-0 font-medium transition-colors"
+              x-text="g.label"
+            ></button>
+          </template>
+        </div>
+
+        <!-- Row 2: state buttons for active group -->
+        <div class="px-4 py-1.5 flex items-center gap-1.5 bg-amber-900/30">
+          <template x-for="s in activeGroup.states" :key="s.id">
+            <button
+              @click="selectState(s.id)"
+              :class="state === s.id
+                ? 'bg-amber-600 text-white border-amber-600'
+                : 'bg-slate-800 text-slate-300 border-slate-600 hover:border-slate-400 hover:text-slate-100'"
+              class="text-xs px-2.5 py-1 rounded border font-medium transition-colors"
+              x-text="s.label"
+            ></button>
+          </template>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           CONTENT
+           Auth flow states: centered card layout
+           User Nav states: full app shell layout
+           ============================================================ -->
+      <div
+        :class="group === 'user-nav' || group === 'account-settings'
+          ? 'min-h-screen flex flex-col'
+          : 'min-h-screen flex items-center justify-center px-4 py-12'"
+      >
+
+        <!-- ── 1 · SIGN IN: DEFAULT ── -->
+        <div class="card space-y-5" x-show="state === 'sign-in'">
+          <div class="space-y-1">
+            <h1 class="page-title">Sign in</h1>
+            <p class="text-muted">Enter your credentials to continue</p>
+          </div>
+          <div class="space-y-4">
+            <div class="space-y-1.5">
+              <label class="label">Email</label>
+              <input type="email" class="input" placeholder="admin@operator.local" />
+            </div>
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label class="label">Password</label>
+                <a href="#" class="link-subtle">Forgot password?</a>
+              </div>
+              <input type="password" class="input" placeholder="Enter your password" />
+            </div>
+            <button class="btn-primary w-full">Sign In</button>
+            <p class="text-center text-muted">
+              Don't have an account? <a href="#" class="link">Sign up</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- ── 2 · SIGN IN: ERROR ── -->
+        <div class="card space-y-5" x-show="state === 'sign-in-error'">
+          <div class="space-y-1">
+            <h1 class="page-title">Sign in</h1>
+            <p class="text-muted">Enter your credentials to continue</p>
+          </div>
+          <div class="space-y-4">
+            <div class="alert-error">Invalid email or password. Please try again.</div>
+            <div class="space-y-1.5">
+              <label class="label">Email</label>
+              <input type="email" class="input" value="cole@example.com" />
+            </div>
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label class="label">Password</label>
+                <a href="#" class="link-subtle">Forgot password?</a>
+              </div>
+              <input type="password" class="input" value="wrongpassword" />
+            </div>
+            <button class="btn-primary w-full">Sign In</button>
+            <p class="text-center text-muted">
+              Don't have an account? <a href="#" class="link">Sign up</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- ── 3 · SIGN IN: UNVERIFIED EMAIL ── -->
+        <div class="card space-y-5" x-show="state === 'sign-in-unverified'">
+          <div class="space-y-1">
+            <h1 class="page-title">Sign in</h1>
+            <p class="text-muted">Enter your credentials to continue</p>
+          </div>
+          <div class="space-y-4">
+            <div class="alert-error">
+              Your email address has not been verified. Please check your inbox
+              or resend the verification email.
+            </div>
+            <div class="space-y-1.5">
+              <label class="label">Email</label>
+              <input type="email" class="input" value="cole@example.com" />
+            </div>
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label class="label">Password</label>
+                <a href="#" class="link-subtle">Forgot password?</a>
+              </div>
+              <input type="password" class="input" value="mypassword" />
+            </div>
+            <button class="btn-primary w-full">Sign In</button>
+            <button class="btn-outline w-full" :disabled="resendCooldown > 0">
+              <i data-lucide="mail" class="w-4 h-4"></i>
+              <span x-show="resendCooldown === 0">Resend Verification Email</span>
+              <span x-show="resendCooldown > 0">Resend in <span x-text="resendCooldown"></span>s</span>
+            </button>
+            <p class="text-center text-muted">
+              Don't have an account? <a href="#" class="link">Sign up</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- ── 4 · SIGN UP: DEFAULT ── -->
+        <div class="card space-y-5" x-show="state === 'sign-up'">
+          <div class="space-y-1">
+            <h1 class="page-title">Create an account</h1>
+            <p class="text-muted">Fill in your details to get started</p>
+          </div>
+          <div class="space-y-4">
+            <div class="space-y-1.5">
+              <label class="label">Name</label>
+              <input type="text" class="input" placeholder="Your name" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="label">Username</label>
+              <input type="text" class="input" placeholder="your_username" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="label">Email</label>
+              <input type="email" class="input" placeholder="you@example.com" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="label">Password</label>
+              <input type="password" class="input" placeholder="At least 8 characters" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="label">Confirm password</label>
+              <input type="password" class="input" placeholder="Confirm your password" />
+            </div>
+            <button class="btn-primary w-full">Create Account</button>
+            <p class="text-center text-muted">
+              Already have an account? <a href="#" class="link">Sign in</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- ── 5 · SIGN UP: VALIDATION ERRORS ── -->
+        <div class="card space-y-5" x-show="state === 'sign-up-errors'">
+          <div class="space-y-1">
+            <h1 class="page-title">Create an account</h1>
+            <p class="text-muted">Fill in your details to get started</p>
+          </div>
+          <div class="space-y-4">
+            <div class="space-y-1.5">
+              <label class="label">Name</label>
+              <input type="text" class="input" placeholder="Your name" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="label">Username</label>
+              <input type="text" class="input input-error" value="ab" />
+              <p class="field-error">Username must be at least 3 characters</p>
+            </div>
+            <div class="space-y-1.5">
+              <label class="label">Email</label>
+              <input type="email" class="input input-error" value="not-an-email" />
+              <p class="field-error">Please enter a valid email address</p>
+            </div>
+            <div class="space-y-1.5">
+              <label class="label">Password</label>
+              <input type="password" class="input input-error" value="short" />
+              <p class="field-error">Password must be at least 8 characters</p>
+            </div>
+            <div class="space-y-1.5">
+              <label class="label">Confirm password</label>
+              <input type="password" class="input input-error" value="different" />
+              <p class="field-error">Passwords do not match</p>
+            </div>
+            <button class="btn-primary w-full">Create Account</button>
+            <p class="text-center text-muted">
+              Already have an account? <a href="#" class="link">Sign in</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- ── 6 · VERIFY EMAIL: CHECK INBOX ── -->
+        <div class="card space-y-5" x-show="state === 'verify-inbox'">
+          <div class="space-y-1">
+            <h1 class="page-title">Check your inbox</h1>
+            <p class="text-muted">We sent a verification link to <strong class="text-slate-200">c***@example.com</strong></p>
+          </div>
+          <div class="space-y-4">
+            <div class="alert-info">
+              Click the link in the email to verify your account. The link will
+              expire in 24 hours.
+            </div>
+            <button class="btn-outline w-full" :disabled="resendCooldown > 0">
+              <i data-lucide="mail" class="w-4 h-4"></i>
+              <span x-show="resendCooldown === 0">Resend Verification Email</span>
+              <span x-show="resendCooldown > 0">Resend in <span x-text="resendCooldown"></span>s</span>
+            </button>
+            <p class="text-center text-muted">
+              Already verified? <a href="#" class="link">Sign in</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- ── 7 · VERIFY EMAIL: VERIFYING ── -->
+        <div class="card space-y-5" x-show="state === 'verify-loading'">
+          <div class="space-y-1">
+            <h1 class="page-title">Verify email</h1>
+            <p class="text-muted">Verifying your email address...</p>
+          </div>
+          <div class="flex flex-col items-center py-6 gap-3">
+            <div class="spinner w-8 h-8 border-4"></div>
+            <p class="text-muted">Please wait</p>
+          </div>
+        </div>
+
+        <!-- ── 8 · VERIFY EMAIL: SUCCESS ── -->
+        <div class="card space-y-5" x-show="state === 'verify-success'">
+          <div class="space-y-1">
+            <h1 class="page-title">Email verified</h1>
+            <p class="text-muted">Your account is ready to use</p>
+          </div>
+          <div class="space-y-4">
+            <div class="alert-success">
+              <i data-lucide="check-circle" class="w-4 h-4 inline mr-1.5 align-text-bottom"></i>
+              Your email has been verified successfully.
+            </div>
+            <button class="btn-primary w-full">Continue to Sign In</button>
+          </div>
+        </div>
+
+        <!-- ── 9 · VERIFY EMAIL: LINK EXPIRED ── -->
+        <div class="card space-y-5" x-show="state === 'verify-expired'">
+          <div class="space-y-1">
+            <h1 class="page-title">Verify email</h1>
+            <p class="text-muted text-red-400">This verification link has expired</p>
+          </div>
+          <div class="space-y-4">
+            <div class="alert-error">
+              This verification link is invalid or has expired. Please request a new one.
+            </div>
+            <button class="btn-outline w-full">Resend Verification Email</button>
+            <p class="text-center text-muted"><a href="#" class="link">Back to Sign In</a></p>
+          </div>
+        </div>
+
+        <!-- ── 10 · FORGOT PASSWORD: FORM ── -->
+        <div class="card space-y-5" x-show="state === 'forgot-form'">
+          <div class="space-y-1">
+            <h1 class="page-title">Forgot password</h1>
+            <p class="text-muted">Enter your email to receive a reset link</p>
+          </div>
+          <div class="space-y-4">
+            <div class="space-y-1.5">
+              <label class="label">Email</label>
+              <input type="email" class="input" placeholder="you@example.com" />
+            </div>
+            <button class="btn-primary w-full">Send Reset Link</button>
+            <p class="text-center text-muted"><a href="#" class="link">Back to Sign In</a></p>
+          </div>
+        </div>
+
+        <!-- ── 11 · FORGOT PASSWORD: EMAIL SENT ── -->
+        <div class="card space-y-5" x-show="state === 'forgot-sent'">
+          <div class="space-y-1">
+            <h1 class="page-title">Check your email</h1>
+            <p class="text-muted">We've sent you a password reset link</p>
+          </div>
+          <div class="space-y-4">
+            <div class="alert-success">
+              If an account exists for <strong>cole@example.com</strong>, you
+              will receive a password reset email shortly.
+            </div>
+            <p class="text-center text-muted">
+              Didn't receive it? Check your spam folder or
+              <a href="#" class="link">try again</a>.
+            </p>
+            <button class="btn-outline w-full">Back to Sign In</button>
+          </div>
+        </div>
+
+        <!-- ── 12 · RESET PASSWORD: FORM ── -->
+        <div class="card space-y-5" x-show="state === 'reset-form'">
+          <div class="space-y-1">
+            <h1 class="page-title">Reset password</h1>
+            <p class="text-muted">Enter your new password below</p>
+          </div>
+          <div class="space-y-4">
+            <div class="space-y-1.5">
+              <label class="label">New password</label>
+              <input type="password" class="input" placeholder="At least 8 characters" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="label">Confirm new password</label>
+              <input type="password" class="input" placeholder="Confirm your password" />
+            </div>
+            <button class="btn-primary w-full">Reset Password</button>
+            <p class="text-center text-muted"><a href="#" class="link">Back to Sign In</a></p>
+          </div>
+        </div>
+
+        <!-- ── 13 · RESET PASSWORD: SUCCESS ── -->
+        <div class="card space-y-5" x-show="state === 'reset-success'">
+          <div class="space-y-1">
+            <h1 class="page-title">Password reset</h1>
+            <p class="text-muted">Your password has been updated</p>
+          </div>
+          <div class="space-y-4">
+            <div class="alert-success">
+              <i data-lucide="check-circle" class="w-4 h-4 inline mr-1.5 align-text-bottom"></i>
+              Your password has been reset successfully.
+            </div>
+            <p class="text-center text-muted">You can now sign in with your new password.</p>
+            <button class="btn-primary w-full">Continue to Sign In</button>
+          </div>
+        </div>
+
+        <!-- ── 14 · RESET PASSWORD: LINK EXPIRED ── -->
+        <div class="card space-y-5" x-show="state === 'reset-expired'">
+          <div class="space-y-1">
+            <h1 class="page-title">Reset password</h1>
+            <p class="text-muted text-red-400">This reset link has expired</p>
+          </div>
+          <div class="space-y-4">
+            <div class="alert-error">
+              The password reset link is invalid or has expired. Please request a new one.
+            </div>
+            <button class="btn-outline w-full">Request New Reset Link</button>
+            <p class="text-center text-muted"><a href="#" class="link">Back to Sign In</a></p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════
+             ACCOUNT SETTINGS (states 15–19)
+             Full app shell: top nav + settings page with 3 tabs.
+             The active tab content changes per state; nav/tabs persist.
+             ══════════════════════════════════════════════════════════ -->
+
+        <!-- Shared shell wrapper for all settings states -->
+        <template x-if="['settings-profile','settings-email','settings-email-sent','settings-password','settings-password-success'].includes(state)">
+          <div class="flex flex-col flex-1">
+
+            <!-- Top nav -->
+            <header class="h-14 border-b border-slate-800 bg-slate-900 px-6 flex items-center justify-between shrink-0">
+              <span class="text-sm font-semibold text-white">Operator</span>
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-slate-400">cole@example.com</span>
+                <button class="btn-ghost">
+                  <i data-lucide="settings" class="w-4 h-4"></i>
+                  Settings
+                </button>
+                <button class="btn-ghost">
+                  <i data-lucide="log-out" class="w-4 h-4"></i>
+                  Sign Out
+                </button>
+              </div>
+            </header>
+
+            <!-- Settings page -->
+            <div class="flex-1 p-8 max-w-2xl mx-auto w-full">
+              <h1 class="page-title mb-6">Settings</h1>
+
+              <!-- Tab bar -->
+              <div class="flex gap-1 border-b border-slate-800 mb-6">
+                <button
+                  :class="state === 'settings-profile' ? 'border-b-2 border-white text-white' : 'text-slate-400 hover:text-slate-200'"
+                  class="text-sm font-medium px-4 pb-2.5 transition-colors"
+                >Profile</button>
+                <button
+                  :class="['settings-email','settings-email-sent'].includes(state) ? 'border-b-2 border-white text-white' : 'text-slate-400 hover:text-slate-200'"
+                  class="text-sm font-medium px-4 pb-2.5 transition-colors"
+                >Email</button>
+                <button
+                  :class="['settings-password','settings-password-success'].includes(state) ? 'border-b-2 border-white text-white' : 'text-slate-400 hover:text-slate-200'"
+                  class="text-sm font-medium px-4 pb-2.5 transition-colors"
+                >Password</button>
+              </div>
+
+              <!-- ── 15 · PROFILE TAB ── -->
+              <div x-show="state === 'settings-profile'" class="w-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-800">
+                  <h2 class="text-sm font-semibold text-white">Profile</h2>
+                  <p class="text-faint mt-0.5">Your account information</p>
+                </div>
+                <div class="divide-y divide-slate-800 px-6">
+                  <div class="py-3 flex items-center justify-between">
+                    <span class="label">Name</span>
+                    <span class="text-muted">Cole Reed</span>
+                  </div>
+                  <div class="py-3 flex items-center justify-between">
+                    <span class="label">Username</span>
+                    <span class="text-muted">colereed</span>
+                  </div>
+                  <div class="py-3 flex items-center justify-between">
+                    <span class="label">Email</span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-muted">cole@example.com</span>
+                      <span class="text-xs px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Verified</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── 16 · EMAIL TAB: FORM ── -->
+              <div x-show="state === 'settings-email'" class="w-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-800">
+                  <h2 class="text-sm font-semibold text-white">Change Email</h2>
+                  <p class="text-faint mt-0.5">A verification link will be sent to your new address</p>
+                </div>
+                <div class="px-6 py-4 space-y-4">
+                  <div class="space-y-1.5">
+                    <label class="label">Current email</label>
+                    <input type="email" class="input" value="cole@example.com" disabled />
+                  </div>
+                  <div class="space-y-1.5">
+                    <label class="label">New email</label>
+                    <input type="email" class="input" placeholder="newemail@example.com" />
+                  </div>
+                </div>
+                <div class="px-6 py-4 border-t border-slate-800 flex justify-end">
+                  <button class="btn-primary">Send Verification Email</button>
+                </div>
+              </div>
+
+              <!-- ── 17 · EMAIL TAB: VERIFICATION SENT ── -->
+              <div x-show="state === 'settings-email-sent'" class="w-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-800">
+                  <h2 class="text-sm font-semibold text-white">Change Email</h2>
+                  <p class="text-faint mt-0.5">A verification link will be sent to your new address</p>
+                </div>
+                <div class="px-6 py-4 space-y-4">
+                  <div class="alert-success">
+                    <i data-lucide="mail" class="w-4 h-4 inline mr-1.5 align-text-bottom"></i>
+                    Verification email sent to <strong>newemail@example.com</strong>.
+                  </div>
+                  <div class="alert-info">
+                    Your address won't change until you click the link. Check your new inbox.
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── 18 · PASSWORD TAB: FORM ── -->
+              <div x-show="state === 'settings-password'" class="w-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-800">
+                  <h2 class="text-sm font-semibold text-white">Change Password</h2>
+                  <p class="text-faint mt-0.5">You'll be signed out of all other sessions</p>
+                </div>
+                <div class="px-6 py-4 space-y-4">
+                  <div class="space-y-1.5">
+                    <label class="label">Current password</label>
+                    <input type="password" class="input" placeholder="Enter your current password" />
+                  </div>
+                  <div class="space-y-1.5">
+                    <label class="label">New password</label>
+                    <input type="password" class="input" placeholder="At least 8 characters" />
+                  </div>
+                  <div class="space-y-1.5">
+                    <label class="label">Confirm new password</label>
+                    <input type="password" class="input" placeholder="Confirm your new password" />
+                  </div>
+                </div>
+                <div class="px-6 py-4 border-t border-slate-800 flex justify-end">
+                  <button class="btn-primary">Change Password</button>
+                </div>
+              </div>
+
+              <!-- ── 19 · PASSWORD TAB: SUCCESS ── -->
+              <div x-show="state === 'settings-password-success'" class="w-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-800">
+                  <h2 class="text-sm font-semibold text-white">Change Password</h2>
+                  <p class="text-faint mt-0.5">You'll be signed out of all other sessions</p>
+                </div>
+                <div class="px-6 py-4 space-y-3">
+                  <div class="alert-success">
+                    <i data-lucide="check-circle" class="w-4 h-4 inline mr-1.5 align-text-bottom"></i>
+                    Your password has been changed successfully.
+                  </div>
+                  <div class="alert-warning">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1.5 align-text-bottom"></i>
+                    All other active sessions have been signed out.
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /settings page -->
+          </div><!-- /shell -->
+        </template>
+
+        <!-- ── 20 · USER NAV: SIGNED IN ── -->
+        <div x-show="state === 'user-nav-signed-in'" class="flex flex-col flex-1">
+          <!-- Top nav -->
+          <header class="h-14 border-b border-slate-800 bg-slate-900 px-6 flex items-center justify-between shrink-0">
+            <span class="text-sm font-semibold text-white">Operator</span>
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-slate-400">cole@example.com</span>
+              <button class="btn-ghost">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+                Settings
+              </button>
+              <button class="btn-ghost">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                Sign Out
+              </button>
+            </div>
+          </header>
+          <!-- Placeholder content -->
+          <div class="flex-1 p-8">
+            <p class="text-muted">App content area</p>
+          </div>
+        </div>
+
+        <!-- ── 21 · USER NAV: LOADING ── -->
+        <div x-show="state === 'user-nav-loading'" class="flex flex-col flex-1">
+          <!-- Top nav -->
+          <header class="h-14 border-b border-slate-800 bg-slate-900 px-6 flex items-center justify-between shrink-0">
+            <span class="text-sm font-semibold text-white">Operator</span>
+            <div class="flex items-center gap-3">
+              <!-- Skeleton pulse for user info -->
+              <div class="h-4 w-36 rounded bg-slate-700 animate-pulse"></div>
+              <div class="h-8 w-20 rounded-md bg-slate-700 animate-pulse"></div>
+              <div class="h-8 w-20 rounded-md bg-slate-700 animate-pulse"></div>
+            </div>
+          </header>
+          <!-- Placeholder content -->
+          <div class="flex-1 p-8">
+            <p class="text-muted">App content area</p>
+          </div>
+        </div>
+
+        <!-- ── 22 · USER NAV: SIGNED OUT ── -->
+        <div x-show="state === 'user-nav-signed-out'" class="flex flex-col flex-1">
+          <!-- Top nav -->
+          <header class="h-14 border-b border-slate-800 bg-slate-900 px-6 flex items-center justify-between shrink-0">
+            <span class="text-sm font-semibold text-white">Operator</span>
+            <div class="flex items-center gap-2">
+              <button class="btn-ghost">
+                <i data-lucide="log-in" class="w-4 h-4"></i>
+                Sign In
+              </button>
+              <button class="btn-primary">
+                Sign Up
+              </button>
+            </div>
+          </header>
+          <!-- Placeholder content -->
+          <div class="flex-1 p-8">
+            <p class="text-muted">App content area</p>
+          </div>
+        </div>
+
+      </div><!-- /content -->
+    </div><!-- /x-data -->
+
+    <!-- Initialize Lucide icons with Alpine-aware refresh -->
+    <script>
+      lucide.createIcons();
+      document.addEventListener("alpine:initialized", () => {
+        let pending = false;
+        const observer = new MutationObserver(() => {
+          if (pending) return;
+          pending = true;
+          requestAnimationFrame(() => {
+            lucide.createIcons();
+            pending = false;
+          });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "agent-bridge",
+  "version": "1.0.0",
+  "description": "Skills for the Agent Bridge system — cross-project knowledge sharing and agent-to-agent communication via the agent-bridge MCP server",
+  "author": {
+    "name": "Cole Reed"
+  },
+  "homepage": "https://github.com/ichabodcole/skill-garden",
+  "repository": "https://github.com/ichabodcole/skill-garden",
+  "license": "MIT"
+}
