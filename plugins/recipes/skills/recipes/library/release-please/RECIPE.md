@@ -98,10 +98,18 @@ treats it as already released and bumps from it.
 }
 ```
 
-**2. Write the config.** Set `bootstrap-sha` to the current `HEAD` of `main`,
-before the commit that adds these files. On the first run release-please finds
-no release tag, and without a bootstrap SHA it reads the whole history and puts
-every `feat` and `fix` ever made into the first release.
+**2. Write the config.** Set `bootstrap-sha` to the last commit whose version
+the manifest records: the current `HEAD` of `main`, before the commit that adds
+these files. On the first run release-please finds no release tag, and without a
+bootstrap SHA it reads the whole history and puts every `feat` and `fix` ever
+made into the first release. It reads the commits after the bootstrap SHA, not
+the SHA itself.
+
+The SHA must end up in `main`'s history exactly as it is. Don't name a commit on
+a feature branch that may be rebased or squashed before it lands: a SHA the walk
+never meets is no stop at all. If work lands on `develop` first, see
+[Branch strategy](#branch-strategy-work-on-develop-release-from-main) for which
+commit to name.
 
 `release-please-config.json`:
 
@@ -165,8 +173,37 @@ General → Workflow permissions, choose "Read and write permissions" and tick
 "Allow GitHub Actions to create and approve pull requests". Without it the run
 fails when it tries to open the release PR.
 
-**5. Commit the three files as `chore:` or `ci:`.** A hidden type, so adopting
+**5. Keep the formatter off the changelogs.** release-please writes
+`CHANGELOG.md` in its own format (`*` bullets, two blank lines before a
+section), and rewrites it on every release. If the project checks Markdown
+formatting (Prettier, markdownlint) in a gate or pre-commit hook, add each
+changelog to its ignore file, or the first merged release PR breaks the gate on
+`main`, and on `develop` once it is synced.
+
+**6. Commit the files as `chore:` or `ci:`.** A hidden type, so adopting
 release-please cuts no release by itself.
+
+**Dry-run before it lands.** The action reads its config from `main`, so nothing
+runs until the config is there. The CLI can run the same logic against a local
+clone, reading GitHub only for the repository's releases, tags and pull requests
+(a token is needed; nothing is written):
+
+```bash
+# A scratch clone whose origin's main is the state to test.
+git clone --bare . /tmp/rp-origin.git
+git clone /tmp/rp-origin.git /tmp/rp-sim
+# In /tmp/rp-sim: check out the branch, add test commits, then
+#   git push -f origin HEAD:main
+npx release-please@17 release-pr --dry-run --trace \
+  --repo-url <owner>/<repo> --token "$(gh auth token)" \
+  --target-branch main --local --local-path /tmp/rp-sim
+```
+
+It prints each release PR it would open, with the diff of every file it would
+change. `--local` runs `git fetch`, `git checkout` and `git reset --hard` in
+`--local-path`, so never point it at a clone with work in it. Its commit walk is
+local `git log`, not the GitHub API the action uses, so it checks the config,
+not GitHub's side.
 
 **Validate:** Push to `main`. The workflow run logs
 `No user facing commits found since …` and opens nothing. Land a `fix:` commit
@@ -363,7 +400,8 @@ setting replaces the default (it is not merged, so a package that sets
   touches only files outside every package (root docs, CI, scripts) releases
   nothing.
 - Tags are `<component>-v<version>`. Give every package a `component`: a
-  `simple` package has none by default, and packages without one collide.
+  `simple` package's default is its `package-name`, which is empty unless set,
+  and packages without one collide.
 - All releasable packages share one release PR, titled `chore: release main`.
   For one PR per package, set `"separate-pull-requests": true`.
 - Leave `.` out of `packages` unless the root is itself a released thing. If it
@@ -497,6 +535,9 @@ package. Each release bumps that plugin's `plugin.json`, writes
 - Seed each manifest entry from that plugin's `plugin.json` as it is at the
   bootstrap commit. A mismatch means the first release bumps from the manifest's
   number and overwrites the file's.
+- Leave `bootstrap-sha` in the config until every plugin has released once.
+  release-please walks back to it on every run while any package has no release;
+  without it, a plugin that has never released reads the whole history.
 - `bump-minor-pre-major` at the top level covers any plugin still below 1.0 and
   does nothing to the rest.
 - Keep versions out of the marketplace file's plugin entries. The plugin's own
@@ -513,7 +554,9 @@ package. Each release bumps that plugin's `plugin.json`, writes
 
 **Validate:** A `feat` commit touching only `plugins/alpha/` gives a release PR
 that bumps alpha alone. A `docs:` commit, or any commit touching only files
-outside `plugins/`, gives none.
+outside `plugins/`, gives none, even a `fix:`. Check both with the
+[dry run](#phase-1-the-single-package-default) before the config reaches `main`,
+and again on GitHub after.
 
 #### Branch strategy: work on develop, release from main
 
@@ -537,6 +580,16 @@ Until step 4, `develop` has the old versions in its version files and
 conflict in the files the release rewrote. The longer `develop` runs apart from
 `main` across a release, the more likely the
 [history walk trap](#the-history-walk-stops-at-the-last-release-commit).
+
+**Adopting release-please while `main` is behind `develop`.** Don't set
+`bootstrap-sha` to `main`'s `HEAD`. The commits between it and the adoption
+would be read as unreleased, and any version already bumped by hand among them
+is bumped a second time. Set it to the last commit on `develop` before the
+adoption branch (the commit it branched from), and seed the manifest from the
+version files as they are there. That commit is already on `develop`, so a
+rebase or squash of the adoption branch cannot change it, and it reaches `main`
+when `develop` does. A `feat` or `fix` on the adoption branch itself then
+releases on the first run, as it should: don't bump its version by hand.
 
 If the repository's default branch on GitHub is `develop`, tell the action which
 branch it releases from:
@@ -653,15 +706,30 @@ it.
 ### The first run releases all of history
 
 With no release tag to find and no `bootstrap-sha`, release-please reads back
-through the whole history and proposes a release built from every `feat` and
-`fix` ever made.
+through the whole history (up to 500 commits) and proposes a release built from
+every `feat` and `fix` ever made. A `bootstrap-sha` that is not in `main`'s
+history does the same: it named a commit on a branch that was later rebased or
+squashed.
 
 - **Spot it:** The first release PR's changelog runs to hundreds of entries, or
   the version jumps.
-- **Fix:** Close the PR, set `bootstrap-sha` to the commit before adoption, make
-  sure the manifest holds the current version, and re-run the workflow.
-  `bootstrap-sha` is only read while a package has no release, so it can stay in
-  the config afterwards.
+- **Fix:** Close the PR, set `bootstrap-sha` to the commit before adoption as it
+  is on `main`, make sure the manifest holds the current version, and re-run the
+  workflow. `bootstrap-sha` is read on every run while any package has no
+  release, so leave it in the config.
+
+### The formatter rejects the generated changelog
+
+release-please writes `CHANGELOG.md` with `*` bullets and two blank lines before
+each section. Prettier rewrites both, so a gate that checks Markdown formatting
+fails on the release commit.
+
+- **Spot it:** `main`'s checks fail right after a release PR merges, on
+  `CHANGELOG.md` alone; or, once `develop` is synced, the pre-commit hook
+  refuses every commit.
+- **Fix:** Add the changelogs to the formatter's ignore file
+  (`plugins/*/CHANGELOG.md` in a marketplace), as
+  [step 5](#phase-1-the-single-package-default) does.
 
 ### Changing the tag format or a component after a release
 
